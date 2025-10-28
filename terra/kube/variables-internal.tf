@@ -81,7 +81,7 @@ variable "var_mobius_nginx_internal_port" {
 variable "var_mobius_server_service_name" {
   description = "Name to be used for the mobius server service name"
   type        = string
-  default     = "mobius"
+  default     = "mobius-server"
 }
 
 variable "var_mobius_server_archive_file_path" {
