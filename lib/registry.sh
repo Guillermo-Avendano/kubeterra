@@ -86,6 +86,7 @@ EOF
     return 0
 }
 
+# Usage: pull_images
 pull_images() {
     local registry_src="$KUBE_SOURCE_REGISTRY"
 
