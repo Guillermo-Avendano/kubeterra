@@ -127,7 +127,7 @@ var_smart_chat_indexing_proxy_chart_file = "smart-chat-indexing-proxy.tgz"
 # Supported values true or false
 var_deploy_eventanalytics = true # To be disabled when we dont need event analytics
 var_deploy_opensearch     = true # To be disabled if we want to connect to opensearch running outside
-var_deploy_smart_chat     = true # To be disabled to test Mobius Server with FTS which also deploys elasticsearch if enabled
+var_deploy_smart_chat     = false # To be disabled to test Mobius Server with FTS which also deploys elasticsearch if enabled
 var_deploy_mobiusview     = true # To be disabled only when we want to test only Mobius Server without View
 var_deploy_elasticsearch  = false # To be disabled if we want to connect to elastic running outside also N/A when smart chat is enabled
 var_deploy_mobiusserver   = true # To be disabled when we want to test Mobius View with different repository

@@ -49,11 +49,7 @@ sidecar_logger:
   image: 
     repository: ${var.var_smart_chat_query_logs_docker_artifactory_url}${var.var_smart_chat_query_logs_service_name}
     pullPolicy: Always
-    tag: ${var.var_smart_chat_query_logs_image}  
-    repository: registry.rocketsoftware.com/smart-chat-query-logs
-    pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.2.2
+    tag: ${var.var_smart_chat_query_logs_image}
   env:
     LOG_PATH: "/app/logs"
   resources:
