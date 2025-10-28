@@ -1,0 +1,7 @@
+# conf/config.yaml
+
+# Filename containing the list of images (relative to conf/)
+IMAGES_FILENAME: images.csv
+
+# SOURCE REGISTRY (where images are downloaded from)
+KUBE_SOURCE_REGISTRY: registry.rocketsoftware.com

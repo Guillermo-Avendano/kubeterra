@@ -1,0 +1,19 @@
+[req]
+default_bits = 4096
+prompt = no
+distinguished_name = ca_dn
+
+[ca_dn]
+C = AR
+ST = Buenos Aires
+L = La Plata
+O = Rocket Software
+OU = Sales Engineering
+CN = Rocket Software ROOT Certificate
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS = localhost
+IP = 127.0.0.1

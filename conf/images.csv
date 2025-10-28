@@ -1,0 +1,10 @@
+#image:version
+eventanalytics:2.0.4
+mobius-server:12.5.0
+mobius-view:12.5.0
+smart-chat:1.2.8
+smart-chat-query-logs:1.2.2
+smart-chat-indexing-proxy:1.2.2
+#appmanager:12.5.0
+#studio:12.5.0
+#processengine:12.5.0
