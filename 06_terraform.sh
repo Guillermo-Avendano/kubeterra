@@ -33,4 +33,4 @@ terraform init
 log INFO "running : 'terraform apply -auto-approve'"
 cd $TERRA_DIR
 
-terraform apply -auto-approve
+terraform apply -auto-approve 2>&1 | tee terraform.log
