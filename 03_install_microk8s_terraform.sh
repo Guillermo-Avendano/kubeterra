@@ -146,7 +146,7 @@ log INFO "💾 3. Installing the NFS Subdir External Provisioner..."
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm repo update
 
-helm install nfs-client-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+sudo helm install nfs-client-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
     --namespace default \
     --set nfs.server="$WSL_IP" \
     --set nfs.path="$NFS_SERVER_PATH" \
