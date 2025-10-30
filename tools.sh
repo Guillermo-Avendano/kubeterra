@@ -12,8 +12,24 @@ CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # pull_images, tag_images, push_images, list_images, list_images_local, ask_binary_question, log
 source "$CORE_SCRIPTS_DIR/common.sh"
 source "$CORE_SCRIPTS_DIR/registry.sh"
+source "$CORE_SCRIPTS_DIR/env.sh"
+source "$CORE_SCRIPTS_DIR/kubefuncions.sh"
 
 # --- Utility Functions ---
+
+check_nfs(){
+    
+  log INFO "✅ NFS Packages installed."
+  dpkg -l | grep nfs-common
+  dpkg -l | grep nfs-kernel-server
+
+  log INFO "✅ NFS Server Path."
+  ls -ld $NFS_SERVER_PATH
+
+  log INFO "✅ cat /etc/exports"
+  cat /etc/exports
+
+}
 
 # Displays the menu options.
 show_menu() {
@@ -21,7 +37,9 @@ show_menu() {
     log INFO "1. pull   - Pull, Tag, and Push images."
     log INFO "2. remote - List remote images."
     log INFO "3. local  - List local images."
-    log INFO "4. exit   - Exit."
+    log INFO "4. nfs    - Check NFS."
+    log INFO "5. debug  - Creates information about the cluster in logs directory."
+    log INFO "X. exit   - Exit."
 }
 
 # Displays usage instructions.
@@ -32,6 +50,8 @@ show_usage() {
     log INFO "  1 | pull | ptp        : Performs the full cycle: Pull, Tag, and Push images."
     log INFO "  2 | remote | ls-r     : Lists images from the remote registry."
     log INFO "  3 | local | ls-l      : Lists local images."
+    log INFO "  4 | nfs               : Check NFS."
+    log INFO "  5 | debug             :Creates information about the cluster in logs directory."
     log INFO "  menu                  : Shows the interactive menu."
     log INFO "  help                  : Shows this help message."
 }
@@ -61,8 +81,16 @@ execute_command() {
             log INFO "📦 Listing local images..."
             list_images_local
             ;;
+        4 | nfs | ls-l)
+            log INFO "📦 Check NFS Installation..."
+            check_nfs
+            ;;  
+        5 | debug | ls-l)
+            log INFO "📦 Debug Namespaces..."
+            debug_namespaces
+            ;;                         
         # Exit (Option 4)
-        4 | exit)
+        x | exit)
             log INFO "Exiting script. Goodbye!"
             exit 0
             ;;
@@ -84,7 +112,7 @@ execute_command() {
 run_interactive_menu() {
     while true; do
         show_menu
-        read -p "Enter your choice (1-4): " choice
+        read -p "Enter your choice (1-5, X to exit): " choice
         
         # Executes the chosen command using the current function's logic
         execute_command "$choice"

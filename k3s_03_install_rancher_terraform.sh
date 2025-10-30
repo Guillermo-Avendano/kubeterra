@@ -4,26 +4,7 @@ CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
-
-
-# =================================================================
-# COMPREHENSIVE INSTALLATION SCRIPT: K3S, RANCHER, CERT-MANAGER, NFS & REGISTRY
-# =================================================================
-
-# Function to get the IP address of the WSL2 instance
-get_wsl_ip() {
-    # Searches for the IP of the eth0 interface or the first non-loopback IP
-    hostname -I | awk '{print $1}'
-}
-
-# --- GLOBAL VARIABLES ---
-WSL_IP=$(get_wsl_ip)
-NFS_SERVER_PATH="$HOME/mobius_data"
-
-RANCHER_HOSTNAME=$(hostname)
-RANCHER_HOSTNAME=$(echo "$RANCHER_HOSTNAME" | tr '[:upper:]' '[:lower:]')
-
-NFS_MOUNT_CHECK_DIR="/mnt/nfscheck"
+source "$CORE_SCRIPTS_DIR/env.sh"
 
 if [ -z "$WSL_IP" ]; then
     log ERROR "❌ Error: Could not retrieve the WSL IP address. Aborting."
@@ -100,37 +81,49 @@ sudo chown $(id -u):$(id -g) ~/.kube/config
 log INFO ""
 log INFO "💾 2. Installing and configuring the NFS Server..."
 
-# The lock file cleaning has been moved to the PRE-FLIGHT CLEANUP section.
-
+# 1. Update packages and install NFS server/client components
 sudo apt update
 sudo apt install -y nfs-common nfs-kernel-server
 
-# Create and configure the directory to be exported
+# 2. Create and configure the directory to be exported
 log INFO "📁 Creating and configuring the exported directory $NFS_SERVER_PATH"
 sudo mkdir -p "$NFS_SERVER_PATH"
+# Establecer 'nobody:nogroup' es crucial para 'no_root_squash' y evitar problemas de ID mapping.
 sudo chown nobody:nogroup "$NFS_SERVER_PATH"
 sudo chmod 777 "$NFS_SERVER_PATH"
 
-# Determine the subnet for NFS (e.g., 172.24.226.0/20)
-# We'll use the /16 subnet of the WSL_IP for simplicity. Adjust if needed.
+# 3. Determine the subnet for NFS (e.g., 172.24.226.0/20)
+# Usaremos el /16 de la WSL_IP por simplicidad, lo cual es común en entornos de desarrollo/WSL.
 SUBNET=$(echo "$WSL_IP" | awk -F. '{print $1"."$2".0.0/16"}') 
 
-# Configure /etc/exports
+# 4. Configure /etc/exports - CONDICIONAL
 EXPORTS_LINE="$NFS_SERVER_PATH 127.0.0.1(rw,sync,no_subtree_check,no_root_squash,insecure) $SUBNET(rw,sync,no_subtree_check,no_root_squash,insecure)"
-log INFO "📝 Appending export line: $EXPORTS_LINE"
-echo "$EXPORTS_LINE" | sudo tee -a /etc/exports > /dev/null
+log INFO "📝 Checking if export line exists: $EXPORTS_LINE"
 
+# Verifica si la línea EXPORTS_LINE (o el NFS_SERVER_PATH) ya está en /etc/exports
+if ! grep -q "^$NFS_SERVER_PATH " /etc/exports; then
+    log INFO "➡️ Appending export line: $EXPORTS_LINE"
+    echo "$EXPORTS_LINE" | sudo tee -a /etc/exports > /dev/null
+else
+    log INFO "ℹ️ Export line for $NFS_SERVER_PATH already exists. Skipping append."
+fi
+
+# 5. Restart the NFS server to load new configuration
 sudo systemctl restart nfs-kernel-server
 
-# Basic mount verification
+# 6. Basic mount verification
 log INFO "🔍 Verifying NFS locally (using $WSL_IP):"
 sudo mkdir -p "$NFS_MOUNT_CHECK_DIR"
+
 if sudo mount -t nfs "$WSL_IP:$NFS_SERVER_PATH" "$NFS_MOUNT_CHECK_DIR"; then
     log INFO "✅ NFS test mount successful to $NFS_MOUNT_CHECK_DIR. Unmounting..."
     sudo umount "$NFS_MOUNT_CHECK_DIR"
     sudo rm -r "$NFS_MOUNT_CHECK_DIR"
 else
+    # Si el montaje falla, intenta mostrar el estado de los exports para ayudar en el diagnóstico
     log ERROR "❌ Error during NFS mount test. Check firewall or /etc/exports configuration. Aborting."
+    log ERROR "Current active NFS exports (sudo exportfs -v):"
+    sudo exportfs -v
     exit 1
 fi
 

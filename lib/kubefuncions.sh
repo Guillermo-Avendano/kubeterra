@@ -20,7 +20,7 @@ debug_namespaces(){
         # Ignorar líneas vacías
         [[ -z "$ns" ]] && continue
         # Filtrar namespaces que NO contengan 'kube' ni 'ingress' (insensible a mayúsculas)
-        if [[ ! "${ns,,}" =~ kube && ! "${ns,,}" =~ ingress  && ! "${ns,,}" =~ default  ]]; then
+        if [[ ! "${ns,,}" =~ kube && ! "${ns,,}" =~ ingress  && ! "${ns,,}" =~ container  && ! "${ns,,}" =~ default  ]]; then
             KUBE_NS_LIST+=("$ns")
         fi
     done < <(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null)

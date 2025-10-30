@@ -20,7 +20,7 @@ resource "helm_release" "smart_chat_indexing_proxy" {
 replicaCount: 1
 
 image:
-  repository: ${var.var_smart_chat_docker_artifactory_url}${var.var_smart_chat_indexing_proxy_service_name}
+  repository: ${var.var_smart_chat_docker_artifactory_url}
   pullPolicy: Always
   tag: ${var.var_smart_chat_indexing_proxy_image}
 

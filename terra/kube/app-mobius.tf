@@ -29,7 +29,7 @@ resource "helm_release" "mobiusserver" {
 replicaCount: ${var.var_mobius_server_replica}
 namespace: ${var.var_namespace_mobius}
 image:
-  repository: ${var.var_mobiusserver_docker_artifactory_url}${var.var_mobius_server_service_name}
+  repository: ${var.var_mobiusserver_docker_artifactory_url}
   tag: ${var.var_mobiusserver_image}
   pullPolicy: Always
   pullSecret: ${var.var_mobius_image_pull_secret}

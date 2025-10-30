@@ -3,12 +3,7 @@
 source "$CORE_SCRIPTS_DIR/common.sh"
 
 export KUBE_SOURCE_REGISTRY=registry.rocketsoftware.com
-
-get_ip() {
-    # Searches for the IP of the eth0 interface or the first non-loopback IP
-    # hostname -I | awk '{print $1}'
-    echo localhost
-}
+export LOCAL_REGISTRY_PORT=${LOCAL_REGISTRY_PORT:-5000}
 
 env_images() {
 
@@ -28,8 +23,7 @@ check_and_restart_docker() {
     DAEMON_FILE="/etc/docker/daemon.json"
     DOCKER_SERVICE="docker"
 
-    LOCAL_IP=$(get_ip)
-    local INSECURE_REGISTRY="localhost:5000"
+    local INSECURE_REGISTRY="localhost:$LOCAL_REGISTRY_PORT"
 
     echo "Checking Docker daemon configuration file at: $DAEMON_FILE"
 
@@ -117,8 +111,7 @@ pull_images() {
 tag_images() {
     local registry_src="$KUBE_SOURCE_REGISTRY"
 
-    LOCAL_IP=$(get_ip)
-    local registry_target="${LOCAL_IP}:5000"
+    local registry_target="localhost:$LOCAL_REGISTRY_PORT"
 
     log "INFO" "Tagging images from $registry_src to $registry_target"
     env_images
@@ -173,8 +166,7 @@ list_images() {
 
 list_images_local() {
     
-    LOCAL_IP=$(get_ip)
-    local registry_target="${LOCAL_IP}:5000"
+    local registry_target="localhost:$LOCAL_REGISTRY_PORT"
 
     log "INFO" "Listing local images from $registry_target"
     env_images
@@ -198,8 +190,7 @@ push_images() {
 
     check_and_restart_docker;
 
-    LOCAL_IP=$(get_ip)
-    local registry_target="${LOCAL_IP}:5000"
+    local registry_target="localhost:$LOCAL_REGISTRY_PORT"
 
     log "INFO" "Logging into local registry $registry_target"
 

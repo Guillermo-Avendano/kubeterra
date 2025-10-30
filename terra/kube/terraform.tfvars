@@ -97,12 +97,12 @@ var_database_eventanalytics_schema = "tf_mobius_ea"
 ##################################################
 
 ### Image URL - Uncomment below if using local image without prefix otherwise comment below to pull it from artifactory
-var_mobiusserver_docker_artifactory_url              = "localhost:5000/"
-var_mobiusview_docker_artifactory_url                = "localhost:5000/"
-var_eventanalytics_docker_artifactory_url            = "localhost:5000/"
-var_smart_chat_docker_artifactory_url                = "localhost:5000/"
-var_smart_chat_query_logs_docker_artifactory_url     = "localhost:5000/"
-var_smart_chat_indexing_proxy_docker_artifactory_url = "localhost:5000/"
+#var_mobiusserver_docker_artifactory_url              = "localhost:5000/"
+#var_mobiusview_docker_artifactory_url                = "localhost:5000/"
+#var_eventanalytics_docker_artifactory_url            = "localhost:5000/"
+#var_smart_chat_docker_artifactory_url                = "localhost:5000/"
+#var_smart_chat_query_logs_docker_artifactory_url     = "localhost:5000/"
+#var_smart_chat_indexing_proxy_docker_artifactory_url = "localhost:5000/"
 
 ##################################################
 

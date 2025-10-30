@@ -5,6 +5,13 @@
 
 set -Eeuo pipefail
 
+# Function to get the IP address of the WSL2 instance
+get_wsl_ip() {
+    # Searches for the IP of the eth0 interface or the first non-loopback IP
+    hostname -I | awk '{print $1}'
+}
+
+
 # Function to log messages
 # Parameters:
 #   $1: Level (INFO, ERROR, WARN, PROGRESS)

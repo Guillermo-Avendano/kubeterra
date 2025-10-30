@@ -20,7 +20,7 @@ resource "helm_release" "eventanalytics" {
 replicaCount: 1
 namespace: ${var.var_namespace_mobius}
 image:
-  repository: ${var.var_eventanalytics_docker_artifactory_url}${var.var_eventanalytics_service_name}
+  repository: ${var.var_eventanalytics_docker_artifactory_url}
   tag: ${var.var_eventanalytics_image}
   pullPolicy: Always
 

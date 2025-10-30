@@ -21,7 +21,7 @@ resource "helm_release" "smart_chat" {
 replicaCount: 1
 
 image:
-  repository: ${var.var_smart_chat_docker_artifactory_url}${var.var_smart_chat_service_name}
+  repository: ${var.var_smart_chat_docker_artifactory_url}
   pullPolicy: Always
   tag: ${var.var_smart_chat_image}
 
@@ -47,7 +47,7 @@ service:
 sidecar_logger:
   name: smart-chat-query-logs
   image: 
-    repository: ${var.var_smart_chat_query_logs_docker_artifactory_url}${var.var_smart_chat_query_logs_service_name}
+    repository: ${var.var_smart_chat_query_logs_docker_artifactory_url}
     pullPolicy: Always
     tag: ${var.var_smart_chat_query_logs_image}
   env:

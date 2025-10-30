@@ -91,7 +91,7 @@ log INFO "Starting Helm installation process..."
 
 log INFO "Downloading the 'get-helm-3' script..."
 # Comprueba si get_helm.sh NO existe (-f verifica si es un archivo regular; ! niega el resultado)
-if [ ! -f "get_helm.sh" ]; then
+if [ ! -f "lib/get_helm.sh" ]; then
     log INFO "Script 'get_helm.sh' not found. Downloading it now..."
     
     # Intenta descargar el script
@@ -107,12 +107,12 @@ fi
 
 # 2. Make the downloaded script executable
 log INFO "Making the script executable..."
-chmod +x get_helm.sh
+chmod +x lib/get_helm.sh
 
 # 3. Execute the script to install Helm
 log INFO "Executing the Helm installation. This might require 'sudo' permissions depending on the default install path."
 # The execution of the script must be checked for success ($?)
-if ! ./get_helm.sh; then
+if ! ./lib/get_helm.sh; then
     log ERROR "The Helm installation script failed during execution."
     exit 1
 fi

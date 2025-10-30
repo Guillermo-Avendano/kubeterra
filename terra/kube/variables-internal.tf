@@ -15,37 +15,37 @@ variable "var_smart_chat_image_pull_secret" {
 variable "var_mobiusserver_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/mobius-server"
 }
 
 variable "var_mobiusview_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/mobius-view"
 }
 
 variable "var_eventanalytics_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/eventanalytics"
 }
 
 variable "var_smart_chat_docker_artifactory_url" {
   description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/smart-chat"
 }
 
 variable "var_smart_chat_query_logs_docker_artifactory_url" {
   description = "The artifactory url for downloading Smart Chat Query Logs images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/smart-chat-query-logs"
 }
 
 variable "var_smart_chat_indexing_proxy_docker_artifactory_url" {
   description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
   type        = string
-  default     = "localhost:5000/"
+  default     = "registry.rocketsoftware.com/smart-chat-indexing-proxy"
 }
 
 variable "var_mobius_service_account" {
