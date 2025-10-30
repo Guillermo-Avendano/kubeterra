@@ -2,6 +2,8 @@
 # Set the CORE_SCRIPTS_DIR to the directory containing this script.
 CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 
+export LOCAL_REGISTRY_PORT="32000"
+
 # Source the common and registry scripts.
 # NOTE: Assuming 'log' function is defined in common.sh
 source "$CORE_SCRIPTS_DIR/common.sh"
@@ -16,6 +18,9 @@ if [ -z "$WSL_IP" ]; then
     log ERROR "❌ Error: Could not retrieve the WSL IP address. Aborting."
     exit 1
 fi
+
+
+REGISTRY_PORT=$LOCAL_REGISTRY_PORT
 
 log INFO "✅ WSL IP obtained: $WSL_IP"
 log INFO "✅ Registry Port requested: $REGISTRY_PORT"
