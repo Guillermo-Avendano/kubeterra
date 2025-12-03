@@ -107,10 +107,10 @@ var_database_eventanalytics_schema = "tf_mobius_ea"
 ##################################################
 
 ### Image configurations
-var_eventanalytics_image            = "2.0.4"
-var_mobiusview_image                = "12.5.0"
-var_mobiusserver_image              = "12.5.0"
-var_mobius_image                    = "12.5.0"
+var_eventanalytics_image            = "2.0.9"
+var_mobiusview_image                = "12.5.2"
+var_mobiusserver_image              = "12.5.2"
+var_mobius_image                    = "12.5.2"
 var_smart_chat_image                = "1.2.8"
 var_smart_chat_query_logs_image     = "1.2.2"
 var_smart_chat_indexing_proxy_image = "1.2.2"

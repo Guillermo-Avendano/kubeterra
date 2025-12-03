@@ -48,18 +48,30 @@ else
 fi
 
 # Clean up remaining lock files if any previous process failed to clean up
-if test -f /var/lib/dpkg/lock-frontend; then
-    log WARN "⚠️ Lock file /var/lib/dpkg/lock-frontend found. Removing it..."
-    sudo rm /var/lib/dpkg/lock-frontend
-fi
+if [ "$OS" = "debian" ]; then
+    if test -f /var/lib/dpkg/lock-frontend; then
+        log WARN "⚠️ Lock file /var/lib/dpkg/lock-frontend found. Removing it..."
+        sudo rm /var/lib/dpkg/lock-frontend
+    fi
 
-if test -f /var/lib/dpkg/lock; then
-    log WARN "⚠️ Lock file /var/lib/dpkg/lock found. Removing it..."
-    sudo rm /var/lib/dpkg/lock
-fi
+    if test -f /var/lib/dpkg/lock; then
+        log WARN "⚠️ Lock file /var/lib/dpkg/lock found. Removing it..."
+        sudo rm /var/lib/dpkg/lock
+    fi
 
-# Reconfigure dpkg in case a previous installation was interrupted
-sudo dpkg --configure -a
+    # Reconfigure dpkg in case a previous installation was interrupted
+    sudo dpkg --configure -a
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    # Clean up yum/dnf lock files if they exist
+    if test -f /var/run/yum.pid; then
+        log WARN "⚠️ Lock file /var/run/yum.pid found. Removing it..."
+        sudo rm -f /var/run/yum.pid
+    fi
+    if test -f /var/cache/dnf/*.lock; then
+        log WARN "⚠️ DNF lock files found. Removing them..."
+        sudo rm -f /var/cache/dnf/*.lock
+    fi
+fi
 
 log INFO "✅ Pre-Flight Cleanup finished."
 
@@ -101,8 +113,22 @@ fi
 # 2. Create and configure the directory to be exported
 log INFO "📁 Creating and configuring the exported directory $NFS_SERVER_PATH"
 sudo mkdir -p "$NFS_SERVER_PATH"
-# Establecer 'nobody:nogroup' es crucial para 'no_root_squash' y evitar problemas de ID mapping.
-sudo chown nobody:nogroup "$NFS_SERVER_PATH"
+
+# Set appropriate ownership based on OS
+# Debian/Ubuntu uses 'nobody:nogroup', RHEL/CentOS/Rocky uses 'nfsnobody:nfsnobody' or 'nobody:nobody'
+if [ "$OS" = "debian" ]; then
+    sudo chown nobody:nogroup "$NFS_SERVER_PATH"
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    # Check if nfsnobody user exists (common in RHEL/CentOS)
+    if id nfsnobody &>/dev/null; then
+        sudo chown nfsnobody:nfsnobody "$NFS_SERVER_PATH"
+    else
+        sudo chown nobody:nobody "$NFS_SERVER_PATH"
+    fi
+else
+    log WARN "Unknown OS: $OS. Using nobody:nobody"
+    sudo chown nobody:nobody "$NFS_SERVER_PATH"
+fi
 sudo chmod 777 "$NFS_SERVER_PATH"
 
 # 3. Determine the subnet for NFS (e.g., 172.24.226.0/20)
@@ -122,7 +148,14 @@ else
 fi
 
 # 5. Restart the NFS server to load new configuration
-sudo systemctl restart nfs-kernel-server
+if [ "$OS" = "debian" ]; then
+    sudo systemctl restart nfs-kernel-server
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo systemctl restart nfs-server
+else
+    log ERROR "Unsupported OS: $OS"
+    exit 1
+fi
 
 # 6. Basic mount verification
 log INFO "🔍 Verifying NFS locally (using $WSL_IP):"

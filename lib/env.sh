@@ -5,6 +5,7 @@ CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CORE_DIR/common.sh"
 
 # --- GLOBAL VARIABLES ---
+RANCHER_HOSTNAME=$(hostname)
 WSL_IP=$(get_wsl_ip)
 NFS_SERVER_PATH="$HOME/mobius_data"
 NFS_MOUNT_CHECK_DIR="/mnt/nfscheck"
