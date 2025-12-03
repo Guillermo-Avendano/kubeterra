@@ -42,6 +42,66 @@ check_nfs(){
 
 }
 
+# Cleans all Docker images, volumes, and containers
+clean_docker(){
+    log WARN "⚠️ WARNING: This will remove ALL Docker containers, images, and volumes!"
+    
+    if [[ $(ask_binary_question "Are you sure you want to continue?" "false") != "Y" ]]; then
+        log INFO "Operation cancelled by user."
+        return 0
+    fi
+    
+    log INFO "🧹 Starting Docker cleanup..."
+    
+    # Stop all running containers
+    log INFO "Stopping all running containers..."
+    if [ -n "$(docker ps -q)" ]; then
+        docker stop $(docker ps -q) 2>/dev/null || log WARN "No running containers to stop."
+    else
+        log INFO "No running containers found."
+    fi
+    
+    # Remove all containers (running and stopped)
+    log INFO "Removing all containers..."
+    if [ -n "$(docker ps -aq)" ]; then
+        docker rm -f $(docker ps -aq) 2>/dev/null || log WARN "No containers to remove."
+    else
+        log INFO "No containers found."
+    fi
+    
+    # Remove all images
+    log INFO "Removing all images..."
+    if [ -n "$(docker images -q)" ]; then
+        docker rmi -f $(docker images -q) 2>/dev/null || log WARN "No images to remove."
+    else
+        log INFO "No images found."
+    fi
+    
+    # Remove all volumes
+    log INFO "Removing all volumes..."
+    if [ -n "$(docker volume ls -q)" ]; then
+        docker volume rm $(docker volume ls -q) 2>/dev/null || log WARN "No volumes to remove."
+    else
+        log INFO "No volumes found."
+    fi
+    
+    # Remove all networks (except default ones)
+    log INFO "Removing custom networks..."
+    if [ -n "$(docker network ls --filter type=custom -q)" ]; then
+        docker network rm $(docker network ls --filter type=custom -q) 2>/dev/null || log WARN "No custom networks to remove."
+    else
+        log INFO "No custom networks found."
+    fi
+    
+    # Prune system to remove any remaining unused data
+    log INFO "Pruning system..."
+    docker system prune -af --volumes 2>/dev/null || true
+    
+    log INFO "✅ Docker cleanup completed!"
+    log INFO "Current Docker disk usage:"
+    docker system df
+}
+
 # Displays the menu options.
 show_menu() {
     log INFO "Please select an option (or use the script with a parameter, e.g.: ./script.sh pull):"
@@ -50,6 +110,7 @@ show_menu() {
     log INFO "3. local  - List local images."
     log INFO "4. nfs    - Check NFS."
     log INFO "5. debug  - Creates information about the cluster in logs directory."
+    log INFO "6. clean  - Clean all Docker containers, images, and volumes."
     log INFO "X. exit   - Exit."
 }
 
@@ -62,7 +123,8 @@ show_usage() {
     log INFO "  2 | remote | ls-r     : Lists images from the remote registry."
     log INFO "  3 | local | ls-l      : Lists local images."
     log INFO "  4 | nfs               : Check NFS."
-    log INFO "  5 | debug             :Creates information about the cluster in logs directory."
+    log INFO "  5 | debug             : Creates information about the cluster in logs directory."
+    log INFO "  6 | clean             : Clean all Docker containers, images, and volumes."
     log INFO "  menu                  : Shows the interactive menu."
     log INFO "  help                  : Shows this help message."
 }
@@ -99,6 +161,10 @@ execute_command() {
         5 | debug | ls-l)
             log INFO "📦 Debug Namespaces..."
             debug_namespaces
+            ;;
+        6 | clean)
+            log INFO "🧹 Cleaning Docker..."
+            clean_docker
             ;;                         
         # Exit (Option 4)
         x | exit)
@@ -123,7 +189,7 @@ execute_command() {
 run_interactive_menu() {
     while true; do
         show_menu
-        read -p "Enter your choice (1-5, X to exit): " choice
+        read -p "Enter your choice (1-6, X to exit): " choice
         
         # Executes the chosen command using the current function's logic
         execute_command "$choice"
