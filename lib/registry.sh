@@ -7,7 +7,7 @@ export LOCAL_REGISTRY_PORT=${LOCAL_REGISTRY_PORT:-5000}
 
 env_images() {
 
-    IMAGES_FILE="$CORE_DIR/conf/images.csv"
+    IMAGES_FILE="$CORE_DIR/../conf/images.csv"
     highlight_message "Using default file: $IMAGES_FILE"
 
     if [[ ! -f "$IMAGES_FILE" ]]; then

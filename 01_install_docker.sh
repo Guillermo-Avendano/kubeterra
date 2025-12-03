@@ -8,6 +8,10 @@ CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
 
+# Detect OS
+detect_os
+log INFO "Detected OS: $OS"
+
 
 # Get the current logged-in user
 CURRENT_USER=$(whoami)
@@ -52,16 +56,24 @@ log INFO ""
 # --- CLEAN UP OLD DOCKER INSTALLATIONS ---
 log INFO "3. Cleaning up old Docker installations..."
 # Note: The step numbering changed from 2 to 3 due to the added cleanup block.
-sudo apt-get remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || true
+if [ "$OS" = "debian" ]; then
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || true
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo dnf remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || sudo yum remove -y docker docker-engine docker.io containerd runc docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || true
+fi
 log INFO "    - Old package cleanup completed."
 log INFO ""
 
 # --- IPTABLES LEGACY CONFIGURATION ---
 log INFO "4. Configuring iptables to legacy mode (if supported)..."
 # Install iptables-persistent to provide the 'legacy' alternatives, avoiding the "no alternatives" error.
-sudo apt-get install -y iptables-persistent 2>/dev/null || true
-sudo update-alternatives --set iptables /usr/sbin/iptables-legacy || true
-sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy || true
+if [ "$OS" = "debian" ]; then
+    sudo apt-get install -y iptables-persistent 2>/dev/null || true
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo dnf install -y iptables-services 2>/dev/null || sudo yum install -y iptables-services 2>/dev/null || true
+fi
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy 2>/dev/null || true
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy 2>/dev/null || true
 log INFO "    - iptables configuration completed."
 log INFO ""
 
@@ -69,25 +81,54 @@ log INFO ""
 log INFO "5. Installing the LATEST stable version of Docker Engine and Docker Compose Plugin..."
 # Note: The step numbering changed from 4 to 5.
 
-# Update package list and install dependencies
-# This 'update' should now succeed after cleaning up external repos.
-sudo apt-get update 
-sudo apt-get install -y ca-certificates curl gnupg lsb-release
+if [ "$OS" = "debian" ]; then
+    # Update package list and install dependencies
+    # This 'update' should now succeed after cleaning up external repos.
+    sudo apt-get update 
+    sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
-# Add Docker's GPG key
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    # Add Docker's GPG key
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-# Add the Docker repository to APT sources
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    # Add the Docker repository to APT sources
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Update package list again with the new repository
-sudo apt-get update
+    # Update package list again with the new repository
+    sudo apt-get update
 
-# Install the latest stable version of Docker components, including docker-compose-plugin
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    # Install the latest stable version of Docker components, including docker-compose-plugin
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    # Remove old Docker repository if exists
+    sudo rm -f /etc/yum.repos.d/docker*.repo
+
+    # Install dependencies
+    sudo dnf install -y dnf-plugins-core 2>/dev/null || sudo yum install -y yum-utils 2>/dev/null
+
+    # Add Docker repository
+    if [ "$OS" = "centos" ]; then
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 2>/dev/null || \
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    elif [ "$OS" = "fedora" ]; then
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    else
+        # RHEL and Rocky Linux
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo 2>/dev/null || \
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    fi
+
+    # Install Docker
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || \
+    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+else
+    log ERROR "Unsupported OS: $OS"
+    exit 1
+fi
 
 log INFO "    - Installation of Docker Engine, CLI, Containerd, and Compose Plugin completed."
 log INFO ""

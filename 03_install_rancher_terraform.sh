@@ -6,6 +6,10 @@ CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 source "$CORE_SCRIPTS_DIR/common.sh"
 source "$CORE_SCRIPTS_DIR/env.sh"
 
+# Detect OS
+detect_os
+log INFO "Detected OS: $OS"
+
 if [ -z "$WSL_IP" ]; then
     log ERROR "❌ Error: Could not retrieve the WSL IP address. Aborting."
     exit 1
@@ -82,8 +86,17 @@ log INFO ""
 log INFO "💾 2. Installing and configuring the NFS Server..."
 
 # 1. Update packages and install NFS server/client components
-sudo apt update
-sudo apt install -y nfs-common nfs-kernel-server
+if [ "$OS" = "debian" ]; then
+    sudo apt update
+    sudo apt install -y nfs-common nfs-kernel-server
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo dnf install -y nfs-utils || sudo yum install -y nfs-utils
+    sudo systemctl enable --now rpcbind
+    sudo systemctl enable --now nfs-server
+else
+    log ERROR "Unsupported OS: $OS"
+    exit 1
+fi
 
 # 2. Create and configure the directory to be exported
 log INFO "📁 Creating and configuring the exported directory $NFS_SERVER_PATH"
@@ -229,8 +242,15 @@ sudo systemctl restart k3s
 # =================================================================
 # 6. Install Terraform
 # =================================================================
-sudo apt update
-sudo apt install -y wget unzip
+if [ "$OS" = "debian" ]; then
+    sudo apt update
+    sudo apt install -y wget unzip
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo dnf install -y wget unzip || sudo yum install -y wget unzip
+else
+    log ERROR "Unsupported OS: $OS"
+    exit 1
+fi
 
 wget https://releases.hashicorp.com/terraform/1.11.2/terraform_1.11.2_linux_amd64.zip
 

@@ -7,6 +7,10 @@ CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
 
+# Detect OS
+detect_os
+log INFO "Detected OS: $OS"
+
 get_ip() {
     # Searches for the IP of the eth0 interface or the first non-loopback IP
     # hostname -I | awk '{print $1}'
@@ -126,7 +130,15 @@ log INFO "Helm installed successfully."
 
 log INFO "Installing dos2unix, net-tools, jq"
 # Convert line endings for YAML, shell, and CSV files
-sudo apt-get install -y dos2unix net-tools jq 
+if [ "$OS" = "debian" ]; then
+    sudo apt-get update
+    sudo apt-get install -y dos2unix net-tools jq
+elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+    sudo dnf install -y dos2unix net-tools jq || sudo yum install -y dos2unix net-tools jq
+else
+    log ERROR "Unsupported OS: $OS"
+    exit 1
+fi 
 
 
 log INFO "Installing yq"
