@@ -38,15 +38,15 @@ cd $TERRA_DIR
 
 #terraform apply -auto-approve 2>&1 | tee terraform.log
 
-export LOCAL_REGISTRY_PORT="5000"
+#export LOCAL_REGISTRY_PORT="5000"
 
 terraform apply \
--var=var_mobiusserver_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/mobius-server' \
--var=var_mobiusview_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/mobius-view' \
--var=var_eventanalytics_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/eventanalytics' \
--var=var_smart_chat_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/smart-chat' \
--var=var_smart_chat_query_logs_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/smart-chat-query-logs' \
--var=var_smart_chat_indexing_proxy_docker_artifactory_url='localhost:$LOCAL_REGISTRY_PORT/smart-chat-indexing-proxy' \
+-var=var_mobiusserver_docker_artifactory_url='localhost:5000/mobius-server' \
+-var=var_mobiusview_docker_artifactory_url='localhost:5000/mobius-view' \
+-var=var_eventanalytics_docker_artifactory_url='localhost:5000/eventanalytics' \
+-var=var_smart_chat_docker_artifactory_url='localhost:5000/smart-chat' \
+-var=var_smart_chat_query_logs_docker_artifactory_url='localhost:5000/smart-chat-query-logs' \
+-var=var_smart_chat_indexing_proxy_docker_artifactory_url='localhost:5000/smart-chat-indexing-proxy' \
 -var=var_docker_username='gavendano@rs.com' \
 -var=var_docker_password='Yapeyu222#' \
 -var=var_docker_email='gavendano@rs.com' \
