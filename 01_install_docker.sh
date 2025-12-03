@@ -43,11 +43,11 @@ log INFO "2. Checking for and cleaning up problematic external APT repositories.
 # The system often fails 'apt update' due to old MySQL or MariaDB entries.
 # Find and remove any list files referencing MySQL (often named mysql.list)
 find /etc/apt/sources.list.d/ -type f -name '*mysql*.list' -delete 2>/dev/null || true
-log INFO "    - Removed old MySQL repository configuration files."
+log INFO "    - Removed old repository configuration files."
 
 # Clean up MariaDB repos if they are causing issues (Optional, but often necessary)
 find /etc/apt/sources.list.d/ -type f -name '*mariadb*.list' -delete 2>/dev/null || true
-log INFO "    - Removed old MariaDB repository configuration files."
+log INFO "    - Removed old repository configuration files."
 
 log INFO ""
 # --- END NEW BLOCK ---

@@ -15,13 +15,24 @@ source "$CORE_SCRIPTS_DIR/registry.sh"
 source "$CORE_SCRIPTS_DIR/env.sh"
 source "$CORE_SCRIPTS_DIR/kubefuncions.sh"
 
+# Detect OS
+detect_os
+log INFO "Detected OS: $OS"
+
 # --- Utility Functions ---
 
 check_nfs(){
     
   log INFO "✅ NFS Packages installed."
-  dpkg -l | grep nfs-common
-  dpkg -l | grep nfs-kernel-server
+  
+  if [ "$OS" = "debian" ]; then
+      dpkg -l | grep nfs-common
+      dpkg -l | grep nfs-kernel-server
+  elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then
+      rpm -qa | grep nfs-utils
+  else
+      log WARN "Unknown OS: $OS. Skipping package check."
+  fi
 
   log INFO "✅ NFS Server Path."
   ls -ld $NFS_SERVER_PATH

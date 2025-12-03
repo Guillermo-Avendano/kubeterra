@@ -1,7 +1,7 @@
 #image:version
-eventanalytics:2.0.4
-mobius-server:12.5.0
-mobius-view:12.5.0
+eventanalytics:2.0.9
+mobius-server:12.5.2
+mobius-view:12.5.2
 smart-chat:1.2.8
 smart-chat-query-logs:1.2.2
 smart-chat-indexing-proxy:1.2.2
