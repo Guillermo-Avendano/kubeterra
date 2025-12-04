@@ -6,7 +6,7 @@
 set -Eeuo pipefail
 
 source "$CORE_SCRIPTS_DIR/common.sh"
-source "$CORE_DIR/conf/env.sh"
+source "$CORE_SCRIPTS_DIR/env.sh"
 
 # Function to set up certificate directories
 setup_cert_directories() {

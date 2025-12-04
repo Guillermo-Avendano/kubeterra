@@ -1,9 +1,7 @@
 #!/bin/bash
 
 source "$CORE_SCRIPTS_DIR/common.sh"
-
-export KUBE_SOURCE_REGISTRY=registry.rocketsoftware.com
-export LOCAL_REGISTRY_PORT=${LOCAL_REGISTRY_PORT:-5000}
+source "$CORE_SCRIPTS_DIR/env.sh"
 
 env_images() {
 

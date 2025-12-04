@@ -21,3 +21,6 @@ export KUBE_SOURCE_REGISTRY=registry.rocketsoftware.com
 
 export DOCKER_USERNAME=gavendano@rs.com
 
+export LOCAL_REGISTRY_PORT=${LOCAL_REGISTRY_PORT:-5000}
+
+export NAMESPACE=mobius

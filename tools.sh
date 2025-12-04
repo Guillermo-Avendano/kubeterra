@@ -4,6 +4,7 @@
 # It can be run interactively (without arguments) or with direct commands (with an argument).
 
 # Set the CORE_SCRIPTS_DIR to the directory containing this script.
+
 CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -106,7 +107,10 @@ clean_docker(){
 
 # Displays the menu options.
 show_menu() {
-    log INFO "Please select an option (or use the script with a parameter, e.g.: ./script.sh pull):"
+    log INFO "Namespce: $NAMESPACE"
+    log INFO "Images: ./conf/images.csv"
+    log INFO "Ingress: ./conf/ingress.csv"
+    log INFO "Please select an option (or use the script with a parameter, e.g.: ./tools.sh pull):"
     log INFO "1. pull    - Pull, Tag, and Push images."
     log INFO "2. remote  - List remote images."
     log INFO "3. local   - List local images."

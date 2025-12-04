@@ -26,10 +26,10 @@ log() {
 setup_nginx_env() {
 
     if [[ -n "${INGRESS_FILENAME:-}" ]]; then
-        INGRESS_FILE="$CORE_DIR/conf/$INGRESS_FILENAME"
+        INGRESS_FILE="$CORE_DIR/../conf/$INGRESS_FILENAME"
         highlight_message "Using INGRESS_FILENAME: $INGRESS_FILE"
     else
-        INGRESS_FILE="$CORE_DIR/conf/ingress.csv"
+        INGRESS_FILE="$CORE_DIR/../conf/ingress.csv"
         highlight_message "Using default file: $INGRESS_FILE"
     fi
 
@@ -39,7 +39,7 @@ setup_nginx_env() {
     fi
 
     NGINX_NAMESPACE="ingress-nginx"
-    INGRESS_TEMPLATES_DIR="$CORE_DIR/templates/ingress"
+    INGRESS_TEMPLATES_DIR="$CORE_DIR/../conf/templates/ingress"
     INGRESS_DEPLOY_DIR="$CORE_DIR/deploy"
 
     # Create namespace if it doesn't exist
