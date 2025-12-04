@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portainer-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false" # Cambia a "true" si usas HTTPS
+spec:
+  ingressClassName: nginx # Asegúrate de que coincida con tu Ingress Controller
+  rules:
+  - host: dashboard.example.com # Cambia por tu dominio o un host local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: portainer
+            port:
+              number: 9000
+  tls: # Opcional: si tienes un certificado TLS
+  - hosts:
+    - dashboard.example.com
+    secretName: dashboard-tls # Nombre del secreto con el certificado TLS

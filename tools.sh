@@ -14,6 +14,8 @@ source "$CORE_SCRIPTS_DIR/common.sh"
 source "$CORE_SCRIPTS_DIR/registry.sh"
 source "$CORE_SCRIPTS_DIR/env.sh"
 source "$CORE_SCRIPTS_DIR/kubefuncions.sh"
+source "$CORE_SCRIPTS_DIR/certificates.sh"
+source "$CORE_SCRIPTS_DIR/ingress.sh"
 
 # Detect OS
 detect_os
@@ -105,13 +107,14 @@ clean_docker(){
 # Displays the menu options.
 show_menu() {
     log INFO "Please select an option (or use the script with a parameter, e.g.: ./script.sh pull):"
-    log INFO "1. pull   - Pull, Tag, and Push images."
-    log INFO "2. remote - List remote images."
-    log INFO "3. local  - List local images."
-    log INFO "4. nfs    - Check NFS."
-    log INFO "5. debug  - Creates information about the cluster in logs directory."
-    log INFO "6. clean  - Clean all Docker containers, images, and volumes."
-    log INFO "X. exit   - Exit."
+    log INFO "1. pull    - Pull, Tag, and Push images."
+    log INFO "2. remote  - List remote images."
+    log INFO "3. local   - List local images."
+    log INFO "4. nfs     - Check NFS."
+    log INFO "5. debug   - Creates information about the cluster in logs directory."
+    log INFO "6. ingress - Creates ingress resources for services."
+    log INFO "Z. clean   - Clean all Docker containers, images, and volumes."
+    log INFO "X. exit    - Exit."
 }
 
 # Displays usage instructions.
@@ -119,14 +122,15 @@ show_usage() {
     log INFO "Usage: $0 [command]"
     log INFO ""
     log INFO "Available commands (Numeric options also work as commands):"
-    log INFO "  1 | pull | ptp        : Performs the full cycle: Pull, Tag, and Push images."
-    log INFO "  2 | remote | ls-r     : Lists images from the remote registry."
-    log INFO "  3 | local | ls-l      : Lists local images."
-    log INFO "  4 | nfs               : Check NFS."
-    log INFO "  5 | debug             : Creates information about the cluster in logs directory."
-    log INFO "  6 | clean             : Clean all Docker containers, images, and volumes."
-    log INFO "  menu                  : Shows the interactive menu."
-    log INFO "  help                  : Shows this help message."
+    log INFO "  1 | pull | ptp    : Performs the full cycle: Pull, Tag, and Push images."
+    log INFO "  2 | remote | ls-r : Lists images from the remote registry."
+    log INFO "  3 | local | ls-l  : Lists local images."
+    log INFO "  4 | nfs           : Check NFS."
+    log INFO "  5 | debug         : Creates information about the cluster in logs directory."
+    log INFO "  6 | ingress       : Creates ingress resources for services."
+    log INFO "  Z | clean         : Clean all Docker containers, images, and volumes."
+    log INFO "  menu              : Shows the interactive menu."
+    log INFO "  help              : Shows this help message."
 }
 
 # Executes the command passed as an argument.
@@ -162,7 +166,12 @@ execute_command() {
             log INFO "📦 Debug Namespaces..."
             debug_namespaces
             ;;
-        6 | clean)
+        6 | ingress | ls-l)
+            log INFO "📦 Creating Ingresses Resources..."
+            update_nginx;
+            install_ingress;
+            ;;
+        z | clean)
             log INFO "🧹 Cleaning Docker..."
             clean_docker
             ;;                         

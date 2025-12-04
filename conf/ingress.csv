@@ -1,0 +1,4 @@
+#ingress_template,ingress_url,namespace
+mobiusview-ingress.yaml,mobius12.local.net,mobius
+mobiusview-ingress.yaml,services-us-virginia-m-1.skytap.com,mobius
+#clientmgr-ingress.yaml,reo.local.net,orchestrator
