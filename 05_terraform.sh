@@ -46,8 +46,6 @@ terraform apply \
 -var=var_mobiusview_docker_artifactory_url='localhost:5000/mobius-view' \
 -var=var_eventanalytics_docker_artifactory_url='localhost:5000/eventanalytics' \
 -var=var_smart_chat_docker_artifactory_url='localhost:5000/smart-chat' \
--var=var_smart_chat_query_logs_docker_artifactory_url='localhost:5000/smart-chat-query-logs' \
--var=var_smart_chat_indexing_proxy_docker_artifactory_url='localhost:5000/smart-chat-indexing-proxy' \
 -var=var_docker_username='gavendano@rs.com' \
 -var=var_docker_password='Yapeyu222#' \
 -var=var_docker_email='gavendano@rs.com' \
