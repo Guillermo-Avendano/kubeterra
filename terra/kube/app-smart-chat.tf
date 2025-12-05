@@ -21,7 +21,7 @@ resource "helm_release" "smart_chat" {
 replicaCount: 1
 
 image:
-  repository: ${var.var_smart_chat_docker_artifactory_url}${var.var_smart_chat_service_name}
+  repository: ${var.var_smart_chat_docker_artifactory_url}
   pullPolicy: Always
   tag: ${var.var_smart_chat_image}
 
