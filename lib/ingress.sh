@@ -168,7 +168,9 @@ install_nginx() {
     if [ "${MYDEBUG:-false}" == "true" ]; then
         echo "helm install nginx ingress-nginx/ingress-nginx -n $NGINX_NAMESPACE"
     else
-        helm install nginx ingress-nginx/ingress-nginx -n "$NGINX_NAMESPACE" || {
+        helm install nginx ingress-nginx/ingress-nginx -n "$NGINX_NAMESPACE" \
+        --set controller.service.ports.http=8080 \
+        --set controller.service.ports.https=8443 || {
             log ERROR "Failed to install NGINX ingress controller."
             exit 1
         }
