@@ -163,7 +163,7 @@ install_nginx() {
 
     setup_nginx_env
 
-    log INFO "Installing NGINX ingress controller version ${NGINX_VERSION:-latest}..."
+    log INFO "Installing NGINX ingress controller..."
 
     if [ "${MYDEBUG:-false}" == "true" ]; then
         echo "helm install nginx ingress-nginx/ingress-nginx -n $NGINX_NAMESPACE"
@@ -229,7 +229,7 @@ remove_nginx() {
 update_nginx() {
     setup_nginx_env
 
-    log INFO "Updating NGINX ingress controller version ${NGINX_VERSION:-latest}..."
+    log INFO "Updating NGINX ingress controller ..."
 
     # Delete existing ingress resources
     local ingresses
