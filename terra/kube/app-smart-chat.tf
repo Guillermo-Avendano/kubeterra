@@ -44,6 +44,18 @@ service:
   podport: 8000
   clusterIP: null
 
+sidecar_logger:
+  name: smart-chat-query-logs
+  image: 
+    repository: ${var.var_smart_chat_query_logs_docker_artifactory_url}
+    pullPolicy: Always
+    tag: ${var.var_smart_chat_query_logs_image}
+  env:
+    LOG_PATH: "/app/logs"
+  resources:
+    requests: 
+      memory: 1Gi
+
     EOT
   ]
 }

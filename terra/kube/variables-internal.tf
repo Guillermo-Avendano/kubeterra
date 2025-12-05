@@ -15,19 +15,37 @@ variable "var_smart_chat_image_pull_secret" {
 variable "var_mobiusserver_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6564/"
+  default     = "registry.rocketsoftware.com/mobius-server"
 }
 
 variable "var_mobiusview_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6564/"
+  default     = "registry.rocketsoftware.com/mobius-view"
 }
 
 variable "var_eventanalytics_docker_artifactory_url" {
   description = "The artifactory url for downloading mobius server, view and eventanalytics images"
   type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6564/"
+  default     = "registry.rocketsoftware.com/eventanalytics"
+}
+
+variable "var_smart_chat_docker_artifactory_url" {
+  description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
+  type        = string
+  default     = "registry.rocketsoftware.com/smart-chat"
+}
+
+variable "var_smart_chat_query_logs_docker_artifactory_url" {
+  description = "The artifactory url for downloading Smart Chat Query Logs images"
+  type        = string
+  default     = "registry.rocketsoftware.com/smart-chat-query-logs"
+}
+
+variable "var_smart_chat_indexing_proxy_docker_artifactory_url" {
+  description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
+  type        = string
+  default     = "registry.rocketsoftware.com/smart-chat-indexing-proxy"
 }
 
 variable "var_mobius_service_account" {
@@ -63,7 +81,7 @@ variable "var_mobius_nginx_internal_port" {
 variable "var_mobius_server_service_name" {
   description = "Name to be used for the mobius server service name"
   type        = string
-  default     = "mobius"
+  default     = "mobius-server"
 }
 
 variable "var_mobius_server_archive_file_path" {
@@ -195,6 +213,13 @@ variable "var_smart_chat_service_name" {
   default     = "smart-chat"
 }
 
+# Variables internal to Smart Chat and Indexing Proxy
+variable "var_smart_chat_query_logs_service_name" {
+  description = "Name to be used for the smart chat query logs service name"
+  type        = string
+  default     = "smart-chat-query-logs"
+}
+
 variable "var_smart_chat_indexing_proxy_service_name" {
   description = "Name to be used for the smart chat indexing proxy service name"
   type        = string
@@ -221,11 +246,6 @@ variable "var_opensearch_password" {
   type        = string
 }
 
-variable "var_smart_chat_docker_artifactory_url" {
-  description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
-  type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6577/"
-}
 
 # Dynamic variables
 locals {
