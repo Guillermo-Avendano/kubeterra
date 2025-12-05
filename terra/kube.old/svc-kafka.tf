@@ -66,7 +66,7 @@ resource "kubernetes_stateful_set" "kafka" {
       spec {
         container {
           name  = "kafka"
-          image = "bitnamilegacy/kafka:latest"
+          image = "bitnamilegacy/kafka:3.3.1-debian-11-r38"
 
           image_pull_policy = "IfNotPresent"
 

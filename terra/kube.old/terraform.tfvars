@@ -10,15 +10,15 @@
 var_use_localkube     = true
 var_kubeconfig_path   = "~/.kube/config" # Update this as per the config path
 #var_kubeconfig_context = ""             # Use the context when there are multiple contexts in the config file otherwise comment it out
-var_namespace_mobius  = "<To_be_updated>"
-var_pvc_storage_class = "nfs-client"
+var_namespace_mobius  = "mobius"
+var_pvc_storage_class = "nfs-storage"
 var_pvc_enabled       = true
 ##################################################
 
 ##### Artifactory specific credentials
-var_docker_username = "<To_be_updated>"
-var_docker_password = "<To_be_updated>"
-var_docker_email    = "<To_be_updated>"
+var_docker_username = ""
+var_docker_password = ""
+var_docker_email    = ""
 ##################################################
 
 ### This will connect to the Shared Postgres Sql deployed in shared-services namespace of local kube
@@ -28,7 +28,7 @@ var_docker_email    = "<To_be_updated>"
 ### Create required schemas manually since terraform cannot create schemas on postgres running inside kube from your machine
 var_deploy_postgresql               = true
 var_database_provider               = "POSTGRESQL"
-var_database_hostname               = "postgresql.shared-services.svc.cluster.local"
+var_database_hostname               = "postgresql"
 var_database_port                   = "5432"
 var_database_user                   = "postgres"
 var_database_password               = "mobius_123"
@@ -110,7 +110,9 @@ var_database_eventanalytics_schema = "tf_mobius_ea"
 var_eventanalytics_image            = "2.0.9"
 var_mobiusview_image                = "12.5.2"
 var_mobiusserver_image              = "12.5.2"
+var_mobius_image                    = "12.5.2"
 var_smart_chat_image                = "1.2.8"
+var_smart_chat_query_logs_image     = "1.2.2"
 var_smart_chat_indexing_proxy_image = "1.2.2"
 ##################################################
 
@@ -126,9 +128,9 @@ var_smart_chat_indexing_proxy_chart_file = "smart-chat-indexing-proxy.tgz"
 # Supported values true or false
 var_deploy_eventanalytics = true # To be disabled when we dont need event analytics
 var_deploy_opensearch     = true # To be disabled if we want to connect to opensearch running outside
-var_deploy_smart_chat     = true # To be disabled to test Mobius Server with FTS which also deploys elasticsearch if enabled
+var_deploy_smart_chat     = false # To be disabled to test Mobius Server with FTS which also deploys elasticsearch if enabled
 var_deploy_mobiusview     = true # To be disabled only when we want to test only Mobius Server without View
-var_deploy_elasticsearch  = true # To be disabled if we want to connect to elastic running outside also N/A when smart chat is enabled
+var_deploy_elasticsearch  = false # To be disabled if we want to connect to elastic running outside also N/A when smart chat is enabled
 var_deploy_mobiusserver   = true # To be disabled when we want to test Mobius View with different repository
 ##################################################
 

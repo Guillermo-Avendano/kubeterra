@@ -12,7 +12,7 @@ resource "helm_release" "postgresql" {
   values = [
     <<-EOT
 image:
-  tag: 14.5.0
+  tag: latest
 
 global:
   postgresql:

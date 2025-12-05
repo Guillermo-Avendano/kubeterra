@@ -20,8 +20,7 @@ set -e
 if [ ! -f "${path.root}/../charts/${var.var_eventanalytics_chart_file}" ]; then
   echo "Downloading Event Analytics Helm chart..."
   curl -X GET "https://wal-artifactory.rocketsoftware.com/artifactory/mobf-helm-dev-wal/${var.var_eventanalytics_chart_file}" \
-       -u "${var.var_docker_username}:${var.var_docker_password}" \
-       -o "${path.root}/../charts/${var.var_eventanalytics_chart_file}"
+       -u "${var.var_docker_username}:${var.var_docker_password}:${path.root}/../charts/${var.var_eventanalytics_chart_file}"
 else
   echo "Event Analytics chart already exists. Skipping download."
 fi
@@ -40,8 +39,7 @@ set -e
 if [ ! -f "${path.root}/../charts/${var.var_mobiusserver_chart_file}" ]; then
   echo "Downloading Mobius Server Helm chart..."
   curl -X GET "https://wal-artifactory.rocketsoftware.com/artifactory/mobf-helm-dev-wal/${var.var_mobiusserver_chart_file}" \
-       -u "${var.var_docker_username}:${var.var_docker_password}" \
-       -o "${path.root}/../charts/${var.var_mobiusserver_chart_file}"
+       -u "${var.var_docker_username}:${var.var_docker_password}:${path.root}/../charts/${var.var_mobiusserver_chart_file}"
 else
   echo "Mobius Server chart already exists. Skipping download."
 fi
@@ -60,8 +58,7 @@ set -e
 if [ ! -f "${path.root}/../charts/${var.var_smart_chat_chart_file}" ]; then
   echo "Downloading Smart Chat Helm chart..."
   curl -X GET "https://wal-artifactory.rocketsoftware.com/artifactory/bicy-helm-release-wal/smart-chat/${var.var_smart_chat_chart_file}" \
-       -u "${var.var_docker_username}:${var.var_docker_password}" \
-       -o "${path.root}/../charts/${var.var_smart_chat_chart_file}"
+       -u "${var.var_docker_username}:${var.var_docker_password}:${path.root}/../charts/${var.var_smart_chat_chart_file}"
 else
   echo "Smart Chat chart already exists. Skipping download."
 fi

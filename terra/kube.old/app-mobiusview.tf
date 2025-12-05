@@ -30,7 +30,7 @@ resource "helm_release" "mobiusview" {
 replicaCount: ${var.var_mobius_view_replica}
 namespace: ${var.var_namespace_mobius}
 image:
-  repository: ${var.var_mobiusview_docker_artifactory_url}mobius-view
+  repository: ${var.var_mobiusview_docker_artifactory_url}
   tag: "${var.var_mobiusview_image}"
   pullPolicy: Always
   pullSecret: "${var.var_mobius_image_pull_secret}"

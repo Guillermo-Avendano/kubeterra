@@ -167,13 +167,13 @@ variable "var_database_oracle_service_name" {
 variable "var_mobius_docker_registry" {
   description = "Mobius docker registry"
   type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6564"
+  default     = "localhost:5000"
 }
 
 variable "var_smart_chat_docker_registry" {
   description = "Smart Chat docker registry"
   type        = string
-  default     = "wal-artifactory.rocketsoftware.com:6577"
+  default     = "localhost:5000"
 }
 
 variable "var_docker_username" {
@@ -230,6 +230,17 @@ variable "var_smart_chat_indexing_proxy_image" {
   description = "The image name for smart chat indexing proxy"
   type        = string
 }
+
+variable "var_smart_chat_query_logs_image" {
+  description = "The image name for smart chat query logs"
+  type        = string
+}
+
+variable "var_mobius_image" {
+  description = "The image name for proxy"
+  type        = string
+}
+
 
 # Helm Charts version
 variable "var_eventanalytics_chart_file" {
