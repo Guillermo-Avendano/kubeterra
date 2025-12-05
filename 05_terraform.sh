@@ -42,10 +42,6 @@ cd $TERRA_DIR
 
 terraform apply \
 -var=var_namespace_mobius='mobius' \
--var=var_mobiusserver_docker_artifactory_url='localhost:5000/mobius-server' \
--var=var_mobiusview_docker_artifactory_url='localhost:5000/mobius-view' \
--var=var_eventanalytics_docker_artifactory_url='localhost:5000/eventanalytics' \
--var=var_smart_chat_docker_artifactory_url='localhost:5000/smart-chat' \
 -var=var_docker_username='gavendano@rs.com' \
 -var=var_docker_password='Yapeyu222#' \
 -var=var_docker_email='gavendano@rs.com' \
