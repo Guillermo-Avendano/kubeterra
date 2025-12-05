@@ -101,6 +101,7 @@ var_mobiusserver_docker_artifactory_url              = "localhost:5000/mobius-se
 var_mobiusview_docker_artifactory_url                = "localhost:5000/mobius-view"
 var_eventanalytics_docker_artifactory_url            = "localhost:5000/eventanalytics"
 var_smart_chat_docker_artifactory_url                = "localhost:5000/smart-chat"
+var_smart_chat_indexing_proxy_docker_artifactory_url = "localhost:5000/smart-chat-indexing-proxy"
 
 ##################################################
 
