@@ -116,7 +116,8 @@ show_menu() {
     log INFO "3. local   - List local images."
     log INFO "4. nfs     - Check NFS."
     log INFO "5. debug   - Creates information about the cluster in logs directory."
-    log INFO "6. ingress - Creates ingress resources for services."
+    log INFO "6. ingress - Creates ingress for mobius services."
+    log INFO "7. nginx   - Installs NGINX http=8080/https=8443."
     log INFO "Z. clean   - Clean all Docker containers, images, and volumes."
     log INFO "X. exit    - Exit."
 }
@@ -131,7 +132,8 @@ show_usage() {
     log INFO "  3 | local | ls-l  : Lists local images."
     log INFO "  4 | nfs           : Check NFS."
     log INFO "  5 | debug         : Creates information about the cluster in logs directory."
-    log INFO "  6 | ingress       : Creates ingress resources for services."
+    log INFO "  6 | ingress       : Creates ingress for mobius services (conf/ingress)."
+    log INFO "  7 | nginx         : Installs NGINX http=8080/https=8443."
     log INFO "  Z | clean         : Clean all Docker containers, images, and volumes."
     log INFO "  menu              : Shows the interactive menu."
     log INFO "  help              : Shows this help message."
@@ -171,10 +173,13 @@ execute_command() {
             debug_namespaces
             ;;
         6 | ingress | ls-l)
-            log INFO "📦 Creating Ingresses Resources..."
-            update_nginx;
+            log INFO "📦 Creating Ingresses for Mobius..."
             install_ingress;
             ;;
+        7 | nginx | ls-l)
+            log INFO "📦 Installing NGINX..."
+            update_nginx;
+            ;;            
         z | clean)
             log INFO "🧹 Cleaning Docker..."
             clean_docker
