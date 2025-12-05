@@ -10,7 +10,7 @@
 var_use_localkube     = true
 var_kubeconfig_path   = "~/.kube/config" # Update this as per the config path
 #var_kubeconfig_context = ""             # Use the context when there are multiple contexts in the config file otherwise comment it out
-var_namespace_mobius  = "<To_be_updated>"
+var_namespace_mobius  = "mobius"
 var_pvc_storage_class = "nfs-client"
 var_pvc_enabled       = true
 ##################################################

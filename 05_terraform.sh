@@ -41,6 +41,7 @@ cd $TERRA_DIR
 #export LOCAL_REGISTRY_PORT="5000"
 
 terraform apply \
+-var=var_namespace_mobius='mobius' \
 -var=var_mobiusserver_docker_artifactory_url='localhost:5000/mobius-server' \
 -var=var_mobiusview_docker_artifactory_url='localhost:5000/mobius-view' \
 -var=var_eventanalytics_docker_artifactory_url='localhost:5000/eventanalytics' \
