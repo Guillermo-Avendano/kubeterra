@@ -1,8 +1,10 @@
+# Core variables shared across modules
+
 # Terraform label
 variable "common_labels" {
   description = "Common labels for all resources"
   type        = map(string)
-  default     = {
+  default = {
     created_by  = "terraform"
     environment = "dev"
     team        = "mobius"
@@ -121,29 +123,12 @@ variable "var_database_password" {
 }
 
 variable "var_create_database_schema_required" {
-  description = "Flag to determine database schema created needed or not"
+  description = "Flag to determine database schema creation"
   type        = bool
   default     = false
 }
 
-variable "var_database_mobiusserver_schema" {
-  description = "Database mobiusserver schema"
-  type        = string
-  default     = "tf_kube_ms"
-}
-
-variable "var_database_mobiusview_schema" {
-  description = "Database mobiusview schema"
-  type        = string
-  default     = "tf_kube_mv"
-}
-
-variable "var_database_eventanalytics_schema" {
-  description = "Database eventanalytics schema"
-  type        = string
-  default     = "tf_kube_ea"
-}
-
+# Oracle overrides
 variable "var_oracle_mobiusserver_user" {
   description = "Oracle mobiusserver user or schema"
   type        = string
@@ -187,7 +172,7 @@ variable "var_database_oracle_sid" {
 }
 
 variable "var_database_oracle_use_sid" {
-  description = "Application to use SID to connect to Oracle if not it will use Service Name"
+  description = "Use SID to connect to Oracle; if false, use Service Name"
   type        = bool
   default     = true
 }
@@ -212,18 +197,18 @@ variable "var_smart_chat_docker_registry" {
 }
 
 variable "var_docker_username" {
-  description = "Mobius docker username"
+  description = "Docker registry username"
   type        = string
 }
 
 variable "var_docker_password" {
-  description = "Mobius docker password"
+  description = "Docker registry password"
   type        = string
   sensitive   = true
 }
 
 variable "var_docker_email" {
-  description = "Mobius docker email"
+  description = "Docker registry email"
   type        = string
 }
 
@@ -238,111 +223,4 @@ variable "var_pvc_storage_capacity" {
   description = "PVC Storage Capacity"
   type        = string
   default     = "1Gi"
-}
-
-# Docker Images version
-variable "var_eventanalytics_image" {
-  description = "The image name for eventanalytics"
-  type        = string
-}
-
-variable "var_mobiusview_image" {
-  description = "The image name for mobius view"
-  type        = string
-}
-
-variable "var_mobiusserver_image" {
-  description = "The image name for mobius server"
-  type        = string
-}
-
-variable "var_smart_chat_image" {
-  description = "The image name for smart chat"
-  type        = string
-}
-
-variable "var_smart_chat_indexing_proxy_image" {
-  description = "The image name for smart chat indexing proxy"
-  type        = string
-}
-
-variable "var_smart_chat_query_logs_image" {
-  description = "The image name for smart chat query logs"
-  type        = string
-}
-
-variable "var_mobius_image" {
-  description = "The image name for proxy"
-  type        = string
-}
-
-
-# Helm Charts version
-variable "var_eventanalytics_chart_file" {
-  description = "The Helm chart file name for eventanalytics"
-  type        = string
-}
-
-variable "var_mobiusview_chart_file" {
-  description = "The Helm chart file name for mobius view"
-  type        = string
-}
-
-variable "var_mobiusserver_chart_file" {
-  description = "The Helm chart file name for mobius server"
-  type        = string
-}
-
-variable "var_smart_chat_chart_file" {
-  description = "The Helm chart file name for smart chat"
-  type        = string
-}
-
-variable "var_smart_chat_indexing_proxy_chart_file" {
-  description = "The Helm chart file name for smart chat indexing proxy"
-  type        = string
-}
-
-# App specific variables
-variable "var_mobius_license" {
-  description = "Mobius License"
-  type        = string
-  sensitive   = true
-}
-
-variable "var_smart_chat_openai_api_key" {
-  description = "API Key for OpenAI to use Smart Chat"
-  type        = string
-  sensitive   = true
-}
-
-# Enable or disable deploying of the application
-variable "var_deploy_eventanalytics" {
-  description = "Skip deploying eventanalytics"
-  type        = bool
-}
-
-variable "var_deploy_opensearch" {
-  description = "Skip deploying opensearch if we want to connect to opensearch running outside"
-  type        = bool
-}
-
-variable "var_deploy_smart_chat" {
-  description = "Skip deploying Smart Chat. In this case Mobius Server will run with elasticsearch and FTS"
-  type        = bool
-}
-
-variable "var_deploy_elasticsearch" {
-  description = "Skip deploying elasticsearch if we want to connect to elastic running outside"
-  type        = bool
-}
-
-variable "var_deploy_mobiusserver" {
-  description = "Skip deploying mobiusserver"
-  type        = bool
-}
-
-variable "var_deploy_mobiusview" {
-  description = "Skip deploying mobiusview"
-  type        = bool
 }

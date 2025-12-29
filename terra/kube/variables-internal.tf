@@ -1,59 +1,5 @@
 # The variables defined here are not expected to be modified but used in multiple places so reference in common
 # Also the variable that needs to be dynamically changed based on another variables internally
-variable "var_mobius_image_pull_secret" {
-  description = "The secret name for pulling mobius images"
-  type        = string
-  default     = "dockerlocal"
-}
-
-variable "var_smart_chat_image_pull_secret" {
-  description = "The secret name for pulling mobius images"
-  type        = string
-  default     = "smartchatdockerlocal"
-}
-
-variable "var_mobiusserver_docker_artifactory_url" {
-  description = "The artifactory url for downloading mobius server, view and eventanalytics images"
-  type        = string
-  default     = "registry.rocketsoftware.com/mobius-server"
-}
-
-variable "var_mobiusview_docker_artifactory_url" {
-  description = "The artifactory url for downloading mobius server, view and eventanalytics images"
-  type        = string
-  default     = "registry.rocketsoftware.com/mobius-view"
-}
-
-variable "var_eventanalytics_docker_artifactory_url" {
-  description = "The artifactory url for downloading mobius server, view and eventanalytics images"
-  type        = string
-  default     = "registry.rocketsoftware.com/eventanalytics"
-}
-
-variable "var_smart_chat_docker_artifactory_url" {
-  description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
-  type        = string
-  default     = "registry.rocketsoftware.com/smart-chat"
-}
-
-variable "var_smart_chat_query_logs_docker_artifactory_url" {
-  description = "The artifactory url for downloading Smart Chat Query Logs images"
-  type        = string
-  default     = "registry.rocketsoftware.com/smart-chat-query-logs"
-}
-
-variable "var_smart_chat_indexing_proxy_docker_artifactory_url" {
-  description = "The artifactory url for downloading Smart Chat and Indexing Proxy images"
-  type        = string
-  default     = "registry.rocketsoftware.com/smart-chat-indexing-proxy"
-}
-
-variable "var_mobius_service_account" {
-  description = "Service account used by mobius server and view"
-  type        = string
-  default     = "mobiussa"
-}
-
 variable "var_database_sslmode" {
   description = "SSL mode to connect with DB for Mobius Server and View"
   type        = string
@@ -61,11 +7,6 @@ variable "var_database_sslmode" {
 }
 
 # Variables internal to Mobius Server
-variable "var_mobius_server_replica" {
-  description = "No of mobius server replicas"
-  type        = number
-}
-
 variable "var_mobius_nginx_internal_host" {
   description = "Internal nginx full controller name"
   type        = string
@@ -84,12 +25,6 @@ variable "var_mobius_server_service_name" {
   default     = "mobius-server"
 }
 
-variable "var_mobius_server_archive_file_path" {
-  description = "Path to be used for archiving"
-  type        = string
-  default     = "/mnt/efs/"
-}
-
 variable "var_pvc_enabled" {
   description = "Enable or disable all PVC for MS and MV "
   type        = bool
@@ -102,60 +37,16 @@ variable "var_mobius_pvc_enabled" {
   default     = false
 }
 
-variable "var_mobius_pvc_name" {
-  description = "PVC name used for Mobius Server to store archives and mobius.reg"
-  type        = string
-  default     = "tf-mobius-pvc-claim"
-}
-
 variable "var_mobius_fts_pvc_enabled" {
   description = "Enable PVC used for FTS data"
   type        = bool
   default     = false
 }
 
-variable "var_mobius_fts_pvc_name" {
-  description = "PVC name used for for FTS data"
-  type        = string
-  default     = "tf-mobius-fts-pv-claim"
-}
-
 variable "var_mobius_diag_pvc_enabled" {
   description = "Enable PVC used for diagnostic data"
   type        = bool
   default     = false
-}
-
-variable "var_mobius_diag_pvc_name" {
-  description = "PVC name used for for diagnostic data"
-  type        = string
-  default     = "tf-mobius-diag-pv-claim"
-}
-
-variable "var_mobius_fts_index_name" {
-  description = "FTS index name to be used in mobius server"
-  type        = string
-}
-
-variable "var_mobius_elastic_enabled" {
-  description = "FTS enabled for sending to elastic"
-  type        = string
-}
-
-variable "var_mobius_elastic_host" {
-  description = "FTS elastic hostname to be used in mobius server"
-  type        = string
-}
-
-variable "var_mobius_elastic_port" {
-  description = "FTS elastic port to be used in mobius server"
-  type        = string
-}
-
-# Variables internal to Mobius View
-variable "var_mobius_view_replica" {
-  description = "No of mobius view replicas"
-  type        = number
 }
 
 variable "var_mobius_view_service_name" {
@@ -170,22 +61,10 @@ variable "var_mobius_view_pvc_enabled" {
   default     = false
 }
 
-variable "var_mobius_view_pvc_name" {
-  description = "PVC name used for Mobius View"
-  type        = string
-  default     = "tf-mobiusview-pv-claim"
-}
-
 variable "var_mobius_view_presentaion_pvc_enabled" {
   description = "Enable PVC used for presentation data"
   type        = bool
   default     = false
-}
-
-variable "var_mobius_view_presentation_pvc_name" {
-  description = "PVC name used for for presentation data"
-  type        = string
-  default     = "tf-mobiusview-presentation-pv-claim"
 }
 
 variable "var_mobius_view_diag_pvc_enabled" {
@@ -194,26 +73,12 @@ variable "var_mobius_view_diag_pvc_enabled" {
   default     = false
 }
 
-variable "var_mobius_view_diag_pvc_name" {
-  description = "PVC name used for for diagnostic data"
-  type        = string
-  default     = "tf-mobiusview-diag-pv-claim"
-}
-
 variable "var_eventanalytics_service_name" {
   description = "Name to be used for the eventanalytics service name"
   type        = string
   default     = "eventanalytics"
 }
 
-# Variables internal to Smart Chat and Indexing Proxy
-variable "var_smart_chat_service_name" {
-  description = "Name to be used for the smart chat service name"
-  type        = string
-  default     = "smart-chat"
-}
-
-# Variables internal to Smart Chat and Indexing Proxy
 variable "var_smart_chat_query_logs_service_name" {
   description = "Name to be used for the smart chat query logs service name"
   type        = string
@@ -224,26 +89,6 @@ variable "var_smart_chat_indexing_proxy_service_name" {
   description = "Name to be used for the smart chat indexing proxy service name"
   type        = string
   default     = "smart-chat-indexing-proxy"
-}
-
-variable "var_opensearch_host" {
-  description = "Opensearch host name used for Smart Chat"
-  type        = string
-}
-
-variable "var_opensearch_port" {
-  description = "Opensearch host port used for Smart Chat"
-  type        = string
-}
-
-variable "var_opensearch_user" {
-  description = "Opensearch user name used for Smart Chat"
-  type        = string
-}
-
-variable "var_opensearch_password" {
-  description = "Opensearch password used for Smart Chat"
-  type        = string
 }
 
 

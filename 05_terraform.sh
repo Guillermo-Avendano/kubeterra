@@ -29,15 +29,18 @@ helm repo update;
 cd terra/kube
 log INFO "Initializing Terraform..."
 
-chmod -R +x .terraform/providers/
-
+# Run init to download providers; chmod only if directory exists
 terraform init
+
+if [ -d .terraform/providers/ ]; then
+    chmod -R +x .terraform/providers/
+fi
 
 log INFO "running : 'terraform apply'"
 cd $TERRA_DIR
 
 # Verify required environment variables
-REQUIRED_VARS=("DOCKER_USERNAME" "DOCKER_PASSWORD" "DOCKER_EMAIL" "MOBIUS_LICENSE" "PVC_STORAGE_CLASS")
+REQUIRED_VARS=("DOCKER_USERNAME" "DOCKER_PASSWORD" "DOCKER_EMAIL" "MOBIUS_LICENSE" "PVC_STORAGE_CLASS" "PVC_STORAGE_CAPACITY")
 for var in "${REQUIRED_VARS[@]}"; do
     if [ -z "${!var}" ]; then
         log ERROR "Required environment variable not set: $var"
@@ -50,6 +53,7 @@ log INFO "Deploying with environment variables..."
 log INFO "  Namespace: ${NAMESPACE}"
 log INFO "  Docker Registry: ${DOCKER_REGISTRY:-registry.rocketsoftware.com}"
 log INFO "  PVC Storage Class: ${PVC_STORAGE_CLASS}"
+log INFO "  PVC Storage Capacity: ${PVC_STORAGE_CAPACITY}"
 
 terraform apply \
   -var=var_namespace_mobius="${NAMESPACE:-mobius}" \
@@ -59,6 +63,7 @@ terraform apply \
   -var=var_mobius_license="${MOBIUS_LICENSE}" \
   -var=var_smart_chat_openai_api_key="${OPENAI_KEY}" \
   -var=var_pvc_storage_class="${PVC_STORAGE_CLASS}" \
+    -var=var_pvc_storage_capacity="${PVC_STORAGE_CAPACITY}" \
   -auto-approve 2>&1 | tee terraform.log
 
 if [ $? -eq 0 ]; then

@@ -10,8 +10,9 @@ resource "kubernetes_secret" "docker_registry_secret" {
 
   type = "kubernetes.io/dockerconfigjson"
 
+  # data expects base64-encoded strings; encode the JSON docker config
   data = {
-    ".dockerconfigjson" = jsonencode({
+    ".dockerconfigjson" = base64encode(jsonencode({
       auths = {
         "${var.var_mobius_docker_registry}" = {
           "username" = var.var_docker_username
@@ -20,7 +21,7 @@ resource "kubernetes_secret" "docker_registry_secret" {
           "auth"     = base64encode("${var.var_docker_username}:${var.var_docker_password}")
         }
       }
-    })
+    }))
   }
 }
 
@@ -37,7 +38,7 @@ resource "kubernetes_secret" "mobius_license" {
   }
 
   data = {
-    license = var.var_mobius_license
+    license = base64encode(var.var_mobius_license)
   }
 }
 
@@ -54,7 +55,7 @@ resource "kubernetes_secret" "smart_chat_docker_registry_secret" {
   type = "kubernetes.io/dockerconfigjson"
 
   data = {
-    ".dockerconfigjson" = jsonencode({
+    ".dockerconfigjson" = base64encode(jsonencode({
       auths = {
         "${var.var_smart_chat_docker_registry}" = {
           "username" = var.var_docker_username
@@ -63,7 +64,7 @@ resource "kubernetes_secret" "smart_chat_docker_registry_secret" {
           "auth"     = base64encode("${var.var_docker_username}:${var.var_docker_password}")
         }
       }
-    })
+    }))
   }
 }
 
@@ -78,7 +79,7 @@ resource "kubernetes_secret" "smart_chat_secrets" {
   }
 
   data = {
-    OPENAI_API_KEY = var.var_smart_chat_openai_api_key
+    OPENAI_API_KEY = base64encode(var.var_smart_chat_openai_api_key)
   }
 
   type = "Opaque"
