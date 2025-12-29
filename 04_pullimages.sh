@@ -7,7 +7,11 @@ CORE_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
 
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
-source "$CORE_SCRIPTS_DIR/env.sh"
+
+# Load environment variables if .env.local exists
+if [ -f ".env.local" ]; then
+    source ".env.local"
+fi
 
 log INFO "======================================="
 log INFO "Variables from $CORE_SCRIPTS_DIR/env.sh"

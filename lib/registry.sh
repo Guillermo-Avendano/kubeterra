@@ -1,7 +1,16 @@
 #!/bin/bash
 
 source "$CORE_SCRIPTS_DIR/common.sh"
-source "$CORE_SCRIPTS_DIR/env.sh"
+
+# Load environment variables if .env.local exists
+if [ -f "$CORE_DIR/.env.local" ]; then
+    source "$CORE_DIR/.env.local"
+fi
+
+# Set defaults
+export KUBE_SOURCE_REGISTRY=${KUBE_SOURCE_REGISTRY:-registry.rocketsoftware.com}
+export LOCAL_REGISTRY_PORT=${LOCAL_REGISTRY_PORT:-5000}
+export NAMESPACE=${NAMESPACE:-mobius}
 
 env_images() {
 

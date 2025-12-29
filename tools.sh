@@ -13,7 +13,6 @@ CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # pull_images, tag_images, push_images, list_images, list_images_local, ask_binary_question, log
 source "$CORE_SCRIPTS_DIR/common.sh"
 source "$CORE_SCRIPTS_DIR/registry.sh"
-source "$CORE_SCRIPTS_DIR/env.sh"
 source "$CORE_SCRIPTS_DIR/kubefuncions.sh"
 source "$CORE_SCRIPTS_DIR/certificates.sh"
 source "$CORE_SCRIPTS_DIR/ingress.sh"
