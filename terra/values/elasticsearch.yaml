@@ -1,0 +1,47 @@
+---
+replicas: 1
+
+image: ${image.repository}
+imageTag: ${image.tag}
+imagePullPolicy: Always
+
+# Permit co-located instances for solitary  virtual machines.
+antiAffinity: "soft"
+
+
+createCert: false
+
+protocol: http
+httpPort: 9200
+transportPort: 9300
+
+# Shrink default JVM heap.
+esJavaOpts: "-Xmx128m -Xms128m"
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html#request-params wait_for_status
+clusterHealthCheckParams: "wait_for_status=yellow&timeout=50s"
+
+# Allocate smaller chunks of memory per pod.
+resources:
+  requests:
+    cpu: "50m"
+    memory: "256M"
+  limits:
+    cpu: "100m"
+    memory: "512M"
+    
+# Request smaller persistent volumes.
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: "manual"
+  resources:
+    requests:
+      storage: 100M
+
+extraEnvs:
+ - name: xpack.security.enabled
+   value: "false"
+# - name: discovery.type
+#   value: single-node
+# - name: cluster.initial_master_nodes
+#   value: null

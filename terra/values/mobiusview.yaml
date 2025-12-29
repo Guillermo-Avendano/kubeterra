@@ -1,0 +1,95 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: ${replicaCount}
+#namespace is the place for the service to run
+namespace: ${namespace}
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: Always
+  pullSecret: "${image.pullSecret}"
+
+asg:
+#Enable Kafka audit
+  audit:
+    topic: audit
+  clustering:
+    port: 6701
+    kubernetes:
+      enabled: ${asg.clustering.kubernetes.enabled}
+      namespace: ${namespace}
+  smartchat:
+    initconfig: ${asg.smartchat.initconfig}
+    url: http://${asg.smartchat.url}:80
+
+deploy:
+  fullstack: false
+
+service:
+  type: NodePort
+
+datasource:
+  url: "${datasource.url}"
+  username: "${datasource.username}"
+  password: "${datasource.password}"
+  driverClassName: ${datasource.driverClassName}
+jpa:
+  databasePlatform: ${jpa.databasePlatform}
+
+initRepository:
+  enabled: true
+  host: "${initRepository.host}"
+  port: "${initRepository.port}"
+  documentServer: "vdrnetds"
+  defaultSSOKey: "ADASDFASDFXGGEG25585"
+  logLevel: "ERROR"
+  java:
+    opts: ""
+
+master:
+  persistence:
+    enabled: ${master.persistence.enabled}
+    claimName: "${master.persistence.claimName}"
+    accessMode: ReadWriteMany
+    size: 1000M
+
+  mobiusViewDiagnostics:
+    persistentVolume:
+      enabled: ${master.mobiusViewDiagnostics.persistentVolume.enabled}
+      claimName: ${master.mobiusViewDiagnostics.persistentVolume.claimName}
+      accessMode: ReadWriteMany
+      size: 1000M
+      
+  presentations:
+    persistence:
+      #enabled is the flag to indicate whether presentation persistence claim is required or not    
+      enabled: ${master.presentations.persistence.enabled}
+      #claimName is the name of the claim created by the user, which will be bound to the mapped persistence volume
+      claimName:  ${master.presentations.persistence.claimName}
+      
+
+spring:
+ #Enable Kafka section to enable auditing to kafka. Configure the topic in audit.kafka section  
+  kafka:
+    bootstrap:
+      servers: kafka.${namespace}.svc.cluster.local:9092
+    security:
+      protocol: PLAINTEXT
+    producer:
+      acks: all
+      properties:
+        enable:
+          idempotence: true
+
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            metrics:
+              audit:
+                uri: http://eventanalytics:8500
+

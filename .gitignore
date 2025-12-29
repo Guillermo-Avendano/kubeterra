@@ -1,2 +1,84 @@
 *.gz
 doc/~$bius_terraform_install_wsl.docx
+# =======================
+# TERRAFORM STATE FILES
+# =======================
+terraform.tfstate
+terraform.tfstate.*
+*.tfstate
+*.tfstate.backup
+crash.log
+
+# =======================
+# TERRAFORM TEMPORARY
+# =======================
+.terraform/
+.terraform.lock.hcl
+terraform.log
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+tfplan
+
+# =======================
+# SENSITIVE FILES
+# =======================
+.env
+.env.local
+.env.*.local
+.env.prod
+.env.dev
+.env.staging
+*.key
+*.pem
+*.crt
+*.pfx
+secrets.json
+secrets.yaml
+
+# =======================
+# IDE & EDITOR
+# =======================
+.idea/
+.vscode/
+*.swp
+*.swo
+*.vim
+.DS_Store
+Thumbs.db
+*.iml
+*.code-workspace
+
+# =======================
+# OS GENERATED
+# =======================
+.DS_Store
+Thumbs.db
+desktop.ini
+.AppleDouble
+.LSOverride
+
+# =======================
+# DOCKER
+# =======================
+.docker/
+docker-compose.override.yml
+
+# =======================
+# LOGS
+# =======================
+*.log
+logs/
+*.err
+
+# =======================
+# TEMPORARY
+# =======================
+*.tmp
+tmp/
+temp/
+*.bak
+*.backup

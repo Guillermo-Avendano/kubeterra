@@ -16,28 +16,18 @@ resource "helm_release" "eventanalytics" {
 #  cleanup_on_fail = true
 #  upgrade_install = true
   values          = [
-    <<-EOT
-replicaCount: 1
-namespace: ${var.var_namespace_mobius}
-image:
-  repository: ${var.var_eventanalytics_docker_artifactory_url}
-  tag: ${var.var_eventanalytics_image}
-  pullPolicy: Always
-
-datasource:
-  url: "${local.var_eventanalytics_database_jdbc_url}"
-  username: ${local.var_eventanalytics_database_user}
-  password: ${local.var_eventanalytics_database_password}
-  driverClassName: ${var.var_database_driver_class_name}
-
-spring:
-  kafka:
-    bootstrap:
-      servers: kafka.${var.var_namespace_mobius}.svc.cluster.local:9092
-
-securityContext:
-  runAsNonRoot: false
-
-    EOT
+    templatefile("${path.root}/../values/eventanalytics.yaml", {
+      namespace = var.var_namespace_mobius
+      image = {
+        repository = var.var_eventanalytics_docker_artifactory_url
+        tag        = var.var_eventanalytics_image
+      }
+      datasource = {
+        url              = local.var_eventanalytics_database_jdbc_url
+        username         = local.var_eventanalytics_database_user
+        password         = local.var_eventanalytics_database_password
+        driverClassName  = var.var_database_driver_class_name
+      }
+    })
   ]
 }

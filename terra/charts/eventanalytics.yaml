@@ -1,0 +1,20 @@
+replicaCount: 1
+namespace: ${namespace}
+image:
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: Always
+
+datasource:
+  url: "${datasource.url}"
+  username: ${datasource.username}
+  password: ${datasource.password}
+  driverClassName: ${datasource.driverClassName}
+
+spring:
+  kafka:
+    bootstrap:
+      servers: kafka.${namespace}.svc.cluster.local:9092
+
+securityContext:
+  runAsNonRoot: false

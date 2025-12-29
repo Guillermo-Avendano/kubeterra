@@ -1,0 +1,43 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: ${namespace}
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: ${image.repository}
+  pullPolicy: Always
+  tag: ${image.tag}
+env:
+  LOG_LEVEL: "DEBUG"
+  OPENSEARCH_HOST: ${env.OPENSEARCH_HOST}
+  OPENSEARCH_PORT: ${env.OPENSEARCH_PORT}
+  OPENSEARCH_USERNAME: ${env.OPENSEARCH_USERNAME}
+  OPENSEARCH_PASSWORD: ${env.OPENSEARCH_PASSWORD}
+  OPENSEARCH_INDEX: ${env.OPENSEARCH_INDEX}
+  QUERY_ROUTER_ENABLED: ${env.QUERY_ROUTER_ENABLED}
+  QUERY_OPTIMIZATION: ${env.QUERY_OPTIMIZATION}
+  WORKERS: ${env.WORKERS}
+imagePullSecrets:
+  - name: ${imagePullSecrets.name}
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  podport: 8000
+  clusterIP: null
+
+sidecar_logger:
+  name: smart-chat-query-logs
+  image: 
+    repository: ${sidecar_logger.image.repository}
+    pullPolicy: Always
+    tag: ${sidecar_logger.image.tag}
+  env:
+    LOG_PATH: "/app/logs"
+  resources:
+    requests: 
+      memory: 1Gi

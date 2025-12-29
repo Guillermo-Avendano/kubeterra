@@ -33,6 +33,16 @@ variable "var_namespace_mobius" {
   description = "Namespace for mobius services"
   type        = string
   default     = "mobius"
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", var.var_namespace_mobius))
+    error_message = "Namespace must be lowercase alphanumeric with hyphens, must start and end with alphanumeric character."
+  }
+
+  validation {
+    condition     = length(var.var_namespace_mobius) <= 63
+    error_message = "Namespace name must be 63 characters or less."
+  }
 }
 
 # Database Variables
@@ -46,18 +56,33 @@ variable "var_database_provider" {
   description = "Database Provider"
   type        = string
   default     = "POSTGRESQL"
+
+  validation {
+    condition     = contains(["POSTGRESQL", "SQLSERVER", "ORACLE"], var.var_database_provider)
+    error_message = "Database provider must be one of: POSTGRESQL, SQLSERVER, ORACLE."
+  }
 }
 
 variable "var_database_hostname" {
   description = "Database hostname or IP"
   type        = string
   default     = "postgresql"
+
+  validation {
+    condition     = length(var.var_database_hostname) > 0
+    error_message = "Database hostname cannot be empty."
+  }
 }
 
 variable "var_database_port" {
   description = "Database port"
   type        = string
   default     = "5432"
+
+  validation {
+    condition     = can(tonumber(var.var_database_port)) && tonumber(var.var_database_port) > 0 && tonumber(var.var_database_port) <= 65535
+    error_message = "Database port must be a valid port number between 1 and 65535."
+  }
 }
 
 variable "var_database_driver_class_name" {
@@ -76,6 +101,11 @@ variable "var_database_user" {
   description = "Database username"
   type        = string
   default     = "postgres"
+
+  validation {
+    condition     = length(var.var_database_user) > 0
+    error_message = "Database username cannot be empty."
+  }
 }
 
 variable "var_database_password" {
@@ -83,6 +113,11 @@ variable "var_database_password" {
   type        = string
   default     = "postgres"
   sensitive   = true
+
+  validation {
+    condition     = length(var.var_database_password) > 0
+    error_message = "Database password cannot be empty."
+  }
 }
 
 variable "var_create_database_schema_required" {

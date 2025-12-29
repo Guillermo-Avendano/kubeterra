@@ -1,0 +1,49 @@
+---
+replicas: 1
+
+image: 
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: Always
+
+# Permit co-located instances for solitary  virtual machines.
+antiAffinity: "soft"
+
+protocol: https
+httpPort: 9200
+transportPort: 9300
+
+# Shrink default JVM heap.
+opensearchJavaOpts: "-Xmx512m -Xms512m"
+
+
+startupProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 30
+  failureThreshold: 30
+
+# Allocate smaller chunks of memory per pod.
+initResources:
+  requests:
+    cpu: "50m"
+    memory: "256M"
+  limits:
+    cpu: "100m"
+    memory: "512M"
+    
+persistence:
+  # Request smaller persistent volumes.
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  storageClass: "manual"
+  size: 100M
+      
+extraEnvs:
+ - name: discovery.type
+   value: single-node
+ - name: cluster.initial_master_nodes
+   value: null
+ - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+   value: ${extraEnvs.OPENSEARCH_INITIAL_ADMIN_PASSWORD}

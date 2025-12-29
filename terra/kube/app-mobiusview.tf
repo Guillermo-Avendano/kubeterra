@@ -26,128 +26,57 @@ resource "helm_release" "mobiusview" {
 #  cleanup_on_fail = true
 #  upgrade_install = true
   values          = [
-    <<-EOT
-replicaCount: ${var.var_mobius_view_replica}
-namespace: ${var.var_namespace_mobius}
-image:
-  repository: ${var.var_mobiusview_docker_artifactory_url}
-  tag: "${var.var_mobiusview_image}"
-  pullPolicy: Always
-  pullSecret: "${var.var_mobius_image_pull_secret}"
-
-asg:
-  clustering:
-    port: 6701
-    kubernetes:
-      enabled: ${local.var_mobius_view_clustering_enabled}
-      namespace: ${var.var_namespace_mobius}
-  audit:
-    topic: audit
-  smartchat:
-    initconfig: ${var.var_deploy_smart_chat}
-    url: http://${var.var_smart_chat_service_name}:80
-
-deploy:
-  fullstack: false
-
-service:
-  type: NodePort
-
-datasource:
-  url: "${local.var_mobiusview_database_jdbc_url}"
-  username: "${local.var_mobiusview_database_user}"
-  password: "${local.var_mobiusview_database_password}"
-  driverClassName: ${var.var_database_driver_class_name}
-jpa:
-  databasePlatform: ${var.var_database_platform}
-
-initRepository:
-  enabled: true
-  host: "${local.var_mobius_server_init_host}"
-  port: "${local.var_mobius_server_init_port}"
-  documentServer: "vdrnetds"
-  defaultSSOKey: "ADASDFASDFXGGEG25585"
-  logLevel: "ERROR"
-  java:
-    opts: ""
-
-master:
-  persistence:
-    enabled: ${local.var_mobius_view_pvc_enabled}
-    claimName: "${var.var_mobius_view_pvc_name}"
-    accessMode: ReadWriteMany
-    size: 1000M
-
-  mobiusViewDiagnostics:
-    persistentVolume:
-      enabled: ${local.var_mobius_view_diag_pvc_enabled}
-      claimName: ${var.var_mobius_view_diag_pvc_name}
-      accessMode: ReadWriteMany
-      size: 1000M
-
-  presentations:
-    persistence:
-      enabled: ${local.var_mobius_view_presentaion_pvc_enabled}
-      claimName: ${var.var_mobius_view_presentation_pvc_name}
-
-spring:
-  kafka:
-    bootstrap:
-      servers: kafka.${var.var_namespace_mobius}.svc.cluster.local:9092
-    security:
-      protocol: PLAINTEXT
-    producer:
-      acks: all
-      properties:
-        enable:
-          idempotence: true
-
-  cloud:
-    discovery:
-      client:
-        simple:
-          instances:
-            metrics:
-              audit:
-                uri: http://eventanalyics:8500
-
-securityContext:
-  runAsNonRoot: false
-
-serviceAccount:
-  name: ${var.var_mobius_service_account}
-
-#resources:
-#  limits:
-#    cpu: 100m
-#    memory: 128Mi
-#  requests:
-#    cpu: 100m
-#    memory: 128Mi
-
-## Uncomment below to use SSL certificate for database
-#additionalVolumes:
-#  - name: dbcert
-#    configMap:
-#      name: dbcert
-## Uncomment below for Oracle to connect with SSL
-#  - name: cwallet
-#    configMap:
-#      name: cwallet
-#
-## Uncomment below to use SSL certificate for database
-#additionalVolumeMounts:
-#  - name: dbcert
-#    mountPath: /etc/pki/tls/custom/database-root-certificate.crt
-#    subPath: database-root-certificate.crt
-#    readOnly: false
-## Uncomment below for Oracle to connect with SSL
-#  - name: cwallet
-#    mountPath: /mnt/efs/ssl_wallet/cwallet.sso
-#    subPath: cwallet.sso
-#    readOnly: false
-
-    EOT
+    templatefile("${path.root}/../values/mobiusview.yaml", {
+      replicaCount = var.var_mobius_view_replica
+      namespace    = var.var_namespace_mobius
+      image = {
+        repository  = var.var_mobiusview_docker_artifactory_url
+        tag         = var.var_mobiusview_image
+        pullSecret  = var.var_mobius_image_pull_secret
+      }
+      asg = {
+        clustering = {
+          kubernetes = {
+            enabled = local.var_mobius_view_clustering_enabled
+          }
+        }
+        smartchat = {
+          initconfig = var.var_deploy_smart_chat
+          url        = var.var_smart_chat_service_name
+        }
+      }
+      datasource = {
+        url              = local.var_mobiusview_database_jdbc_url
+        username         = local.var_mobiusview_database_user
+        password         = local.var_mobiusview_database_password
+        driverClassName  = var.var_database_driver_class_name
+      }
+      jpa = {
+        databasePlatform = var.var_database_platform
+      }
+      initRepository = {
+        host = local.var_mobius_server_init_host
+        port = local.var_mobius_server_init_port
+      }
+      master = {
+        persistence = {
+          enabled   = local.var_mobius_view_pvc_enabled
+          claimName = var.var_mobius_view_pvc_name
+        }
+        mobiusViewDiagnostics = {
+          persistentVolume = {
+            enabled   = local.var_mobius_view_diag_pvc_enabled
+            claimName = var.var_mobius_view_diag_pvc_name
+          }
+        }
+        presentations = {
+          persistence = {
+            enabled   = local.var_mobius_view_presentaion_pvc_enabled
+            claimName = var.var_mobius_view_presentation_pvc_name
+          }
+        }
+      }
+    })
   ]
 }
 

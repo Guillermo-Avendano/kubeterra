@@ -16,17 +16,15 @@ resource "helm_release" "smart_chat_indexing_proxy" {
 #  cleanup_on_fail = true
 #  upgrade_install = true
   values          = [
-    <<-EOT
-replicaCount: 1
-
-image:
-  repository: ${var.var_smart_chat_indexing_proxy_docker_artifactory_url}
-  pullPolicy: Always
-  tag: ${var.var_smart_chat_indexing_proxy_image}
-
-imagePullSecrets:
-  - name: ${var.var_smart_chat_image_pull_secret}
-
-    EOT
+    templatefile("${path.root}/../values/smart_chat_indexing_proxy.yaml", {
+      namespace = var.var_namespace_mobius
+      image = {
+        repository = var.var_smart_chat_indexing_proxy_docker_artifactory_url
+        tag        = var.var_smart_chat_indexing_proxy_image
+      }
+      imagePullSecrets = {
+        name = var.var_smart_chat_image_pull_secret
+      }
+    })
   ]
 }

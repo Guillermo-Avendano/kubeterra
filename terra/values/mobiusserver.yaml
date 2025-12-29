@@ -1,0 +1,76 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: ${replicaCount}
+#namespace is the place for the service to run
+namespace: ${namespace}
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: Always
+  pullSecret: ${image.pullSecret}
+mobius:
+  admin:
+    #Adding a group to the document server to be accessed from. Accepts comma separated values
+    group: "mobiusadmin"
+    user: "system"
+  rds:
+    #provider is the DBMS System being used. "ORACLE" or "POSTGRESQL".
+    protocol: "${mobius.rds.protocol}"
+    sslMode: "${mobius.rds.sslMode}"
+    provider: "${mobius.rds.provider}"
+    #endpoint is the hostname of the RDS Database
+    endpoint: "${mobius.rds.endpoint}"
+    #port is the port used by the Database
+    port: "${mobius.rds.port}"
+    #initOrUpgrade is used to specify if the db should be intialized or upgraded during startup
+    initOrUpgrade: "YES"
+    #credentials
+    # Placeholders will replaced in runtime based on .env file
+    user: "${mobius.rds.user}"
+    password: "${mobius.rds.password}"
+    sid: ${mobius.rds.sid}
+    serviceName: ${mobius.rds.serviceName}
+    schema: "${mobius.rds.schema}"
+  persistentVolume:
+    enabled: ${mobius.persistentVolume.enabled}
+    claimName: "${mobius.persistentVolume.claimName}"
+  mobiusDiagnostics:
+    persistentVolume:
+      #enabled is the flag to indicate whether persistence claim for mobius diagnostics report is required or not
+      #By setting the value as false, application logs will be lost when the pod is removed
+      enabled: ${mobius.mobiusDiagnostics.persistentVolume.enabled}
+      # persistent volume claim name for mobius diagnostics report
+      claimName: "${mobius.mobiusDiagnostics.persistentVolume.claimName}"
+  createDocumentServer: "YES"
+  isSaas: "YES"
+  sharedFileTemplate: "${mobius.sharedFileTemplate}"
+  fts:
+      #enabled set to yes to turn on full text search
+      enabled: "${mobius.fts.enabled}"
+      
+      persistentVolume:
+        enabled: ${mobius.fts.persistentVolume.enabled}
+        claimName: "mobius-fts-pv-claim"
+
+      #Uncomment to enable elasticsearch for FTS      
+      engineType: "elasticsearch"
+      serverProtocol: "HTTP"
+      host: <ELASTICSEARCH_HOST>
+      port: <ELASTICSEARCH_PORT>
+      indexName: <ELASTICSEARCH_INDEX>
+
+            
+  #Uncomment to enable topic export to eventanalytics
+  
+  topic:
+    export:
+      url: jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_EVENTANALYTICS>
+      user: <POSTGRESQL_USERNAME>
+      password: <POSTGRESQL_PASSWORD>
+      driver: org.postgresql.Driver
+
+service:
+  type: ClusterIP
