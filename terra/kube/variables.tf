@@ -216,7 +216,7 @@ variable "var_docker_email" {
 variable "var_pvc_storage_class" {
   description = "PVC Storage Class"
   type        = string
-  default     = "nfs-client"
+  default     = "nfs-storage"
 }
 
 variable "var_pvc_storage_capacity" {
