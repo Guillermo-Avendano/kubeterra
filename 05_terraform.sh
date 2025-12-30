@@ -9,6 +9,15 @@ TERRA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/terra/kube"
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
 
+# Load environment variables from .env.local
+if [ -f ".env.local" ]; then
+    source ".env.local"
+    log INFO "Loaded environment variables from .env.local"
+else
+    log ERROR ".env.local not found. Please copy .env.example to .env.local and configure it."
+    exit 1
+fi
+
 
 NAMESPACE=mobius
 
@@ -42,7 +51,7 @@ cd $TERRA_DIR
 # Verify required environment variables
 REQUIRED_VARS=("DOCKER_USERNAME" "DOCKER_PASSWORD" "DOCKER_EMAIL" "MOBIUS_LICENSE" "PVC_STORAGE_CLASS" "PVC_STORAGE_CAPACITY")
 for var in "${REQUIRED_VARS[@]}"; do
-    if [ -z "${!var}" ]; then
+    if [ -z "${!var:-}" ]; then
         log ERROR "Required environment variable not set: $var"
         log ERROR "Please source .env.local or set the variable manually"
         exit 1

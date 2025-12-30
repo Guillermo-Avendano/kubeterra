@@ -37,8 +37,8 @@ persistence:
   enabled: true
   accessModes:
     - ReadWriteOnce
-  storageClass: "manual"
-  size: 100M
+  storageClass: "nfs-storage"
+  size: 1Gi
       
 extraEnvs:
  - name: discovery.type
