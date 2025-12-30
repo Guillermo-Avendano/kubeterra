@@ -19,29 +19,25 @@ resource "helm_release" "postgresql" {
 image:
   tag: latest
 
-global:
-  postgresql:
-    auth:
-      existingSecret: postgresql
-      secretKeys:
-        adminPasswordKey: postgres-password
-        userPasswordKey: password
-      username: ${var.var_database_user}
-      database: postgres
-    service:
-      ports:
-        postgresql: 5432
+auth:
+  existingSecret: postgresql
+  secretKeys:
+    adminPasswordKey: postgres-password
+    userPasswordKey: password
+  username: ${var.var_database_user}
+  database: postgres
+
+service:
+  ports:
+    postgresql: 5432
 
 fullnameOverride: postgresql
 
 resources:
   requests:
     cpu: 50m
-    memory: 100Mi
-  limits:
-    cpu: 100m
-    memory: 512Mi
-
+    memor250m
+    memory: 256
 primary:
   persistence:
     enabled: false
