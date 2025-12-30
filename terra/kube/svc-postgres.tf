@@ -9,6 +9,11 @@ resource "helm_release" "postgresql" {
   chart      = "postgresql"
   version    = "11.8.2"
 
+  # Ensure secret is created before deploying PostgreSQL
+  depends_on = [
+    kubernetes_secret.postgresql_secret
+  ]
+
   values = [
     <<-EOT
 image:
