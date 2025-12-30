@@ -28,6 +28,7 @@ resource "helm_release" "eventanalytics" {
         password         = local.var_eventanalytics_database_password
         driverClassName  = var.var_database_driver_class_name
       }
+      kafka_bootstrap_servers = "kafka.${var.var_namespace_mobius}.svc.cluster.local:9092"
     })
   ]
 }

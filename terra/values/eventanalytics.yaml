@@ -4,15 +4,15 @@
 
 #replicaCount is the number of replicas required for this service
 replicaCount: 1
-namespace: <NAMESPACE>
+namespace: ${namespace}
 
 
 
 image:
   #repository is the docker registory to pull docker images
-  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_EVENTANALYTICS>
+  repository: ${image.repository}
   #tag is the docker image tag(it may be latest or any version)
-  tag:  <IMAGE_VERSION_EVENTANALYTICS>
+  tag: ${image.tag}
   #pullPolicy is the policy to pull images
   pullPolicy: IfNotPresent
   
@@ -22,13 +22,13 @@ service:
 
 datasource:
   #url is the db endpoint with port number and schema name where the database connectivity will be established
-  url: jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_EVENTANALYTICS>
+  url: ${datasource.url}
   #username is the admin account for the Database, used when creating new DB schemas
-  username: <POSTGRESQL_USERNAME>
+  username: ${datasource.username}
   #password is the admin account password for the Database, used when creating new DB schemas
-  password: <POSTGRESQL_PASSWORD>
+  password: ${datasource.password}
   #driverClassName is the database drive class name
-  driverClassName: org.postgresql.Driver
+  driverClassName: ${datasource.driverClassName}
   hikari:
     autoCommit: false
 
@@ -51,7 +51,7 @@ spring:
     security:
       protocol: PLAINTEXT
     bootstrap:
-      servers: <KAFKA_BOOTSTRAP_URL>
+      servers: ${kafka_bootstrap_servers}
     consumer:
       auto:
         offset:
