@@ -17,9 +17,11 @@ image:
 global:
   postgresql:
     auth:
-      postgresPassword: ${var.var_database_password}
+      existingSecret: postgresql
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
       username: ${var.var_database_user}
-      password: ${var.var_database_password}
       database: postgres
     service:
       ports:

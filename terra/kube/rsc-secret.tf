@@ -84,3 +84,21 @@ resource "kubernetes_secret" "smart_chat_secrets" {
 
   type = "Opaque"
 }
+
+# Create PostgreSQL Password Secret
+resource "kubernetes_secret" "postgresql_secret" {
+
+  count = var.var_deploy_postgresql == true ? 1 : 0
+  metadata {
+    name      = "postgresql"
+    namespace = var.var_namespace_mobius
+    labels    = var.common_labels
+  }
+
+  data = {
+    postgres-password = base64encode(var.var_database_password)
+    password          = base64encode(var.var_database_password)
+  }
+
+  type = "Opaque"
+}
