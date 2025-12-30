@@ -14,6 +14,9 @@ resource "helm_release" "opensearch_dashboard" {
     <<EOF
 
 replicaCount: 1
+
+opensearchHosts: "http://opensearch-cluster-master:9200"
+
 startupProbe:
   periodSeconds: 10
   timeoutSeconds: 30
@@ -22,6 +25,12 @@ startupProbe:
 
 service:
   type: NodePort
+
+config:
+  opensearch_dashboards.yml: |
+    opensearch.ssl.verificationMode: none
+    opensearch_security.auth.type: ""
+    opensearch_security.disabled: true
 
 EOF
   ]
