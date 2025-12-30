@@ -591,21 +591,153 @@ The main automation script that orchestrates the entire Terraform deployment pro
    - Sets executable permissions on provider binaries
    - Ensures `.terraform/providers/` is properly configured
 
-6. **Validation**
-   - Verifies all required environment variables are set:
-     - `DOCKER_USERNAME` - Docker registry username
-     - `DOCKER_PASSWORD` - Docker registry password
-     - `DOCKER_EMAIL` - Docker registry email
-     - `MOBIUS_LICENSE` - Mobius license key
-     - `PVC_STORAGE_CLASS` - Kubernetes storage class
-     - `PVC_STORAGE_CAPACITY` - Storage volume capacity
-   - Exits with error if any required variable is missing
+6. **Image Version Validation**
+   - Verifies all required image version variables are set:
+     - `MOBIUS_SERVER_IMAGE` - Mobius Server version
+     - `MOBIUS_VIEW_IMAGE` - Mobius View version
+     - `EVENT_ANALYTICS_IMAGE` - Event Analytics version
+     - `SMART_CHAT_IMAGE` - Smart Chat version
+     - `SMART_CHAT_QUERY_LOGS_IMAGE` - Smart Chat Query Logs version
+     - `SMART_CHAT_INDEXING_PROXY_IMAGE` - Smart Chat Indexing Proxy version
+   - Exits with error if any image version is missing
 
-7. **Terraform Apply**
+7. **Terraform Apply with Image Versions**
    - Passes environment variables as Terraform input variables
+   - Includes all image version variables from `.env.local`
    - Uses `-auto-approve` flag to skip manual confirmation
    - Logs output to `terraform.log` file
    - Validates success/failure and provides appropriate error messages
+
+**Image Version Flow:**
+
+```
+conf/images.csv (source of truth)
+        ↓
+.env.local (copied and maintained by user)
+        ↓
+04_pullimages.sh (pre-pulls images from registry)
+        ↓
+05_terraform.sh (passes to terraform apply)
+        Image Version Management (conf/images.csv Integration)
+
+#### Understanding Image Version Workflow
+
+The image versions are centrally managed in `conf/images.csv` and synchronized across deployment scripts:
+
+**conf/images.csv Format:**
+```csv
+#image:version
+eventanalytics:2.0.9
+mobius-server:12.5.2
+mobius-view:12.5.2
+smart-chat:1.2.8
+smart-chat-query-logs:1.2.2
+smart-chat-indexing-proxy:1.2.2
+```
+
+#### Variables in Different Files
+
+**Environment Variables (.env.local/.env.example):**
+```bash
+MOBIUS_SERVER_IMAGE=12.5.2
+MOBIUS_VIEW_IMAGE=12.5.2
+EVENT_ANALYTICS_IMAGE=2.0.9
+SMART_CHAT_IMAGE=1.2.8
+SMART_CHAT_QUERY_LOGS_IMAGE=1.2.2
+SMART_CHAT_INDEXING_PROXY_IMAGE=1.2.2
+DOCKER_REGISTRY=localhost:5000
+```
+
+**Terraform Variables (terra/kube/var-*.tf):**
+```terraform
+variable "var_mobiusserver_image" {
+  default = "12.5.2"
+}
+
+variable "var_mobiusview_image" {
+  default = "12.5.2"
+}
+
+variable "var_eventanalytics_image" {
+  default = "2.0.9"
+}
+
+variable "var_smart_chat_image" {
+  default = "1.2.8"
+}
+```
+
+#### How 05_terraform.sh Uses Image Versions
+
+The script passes image versions to Terraform:
+
+```bash
+terraform apply \
+  -var=var_mobiusserver_image="${MOBIUS_SERVER_IMAGE}" \
+  -var=var_mobiusview_image="${MOBIUS_VIEW_IMAGE}" \
+  -var=var_eventanalytics_image="${EVENT_ANALYTICS_IMAGE}" \
+  -var=var_smart_chat_image="${SMART_CHAT_IMAGE}" \
+  -var=var_smart_chat_query_logs_image="${SMART_CHAT_QUERY_LOGS_IMAGE}" \
+  -var=var_smart_chat_indexing_proxy_image="${SMART_CHAT_INDEXING_PROXY_IMAGE}" \
+  ...
+```
+
+#### Update Workflow
+
+**When updating to a new version:**
+
+1. **Update conf/images.csv:**
+   ```bash
+   # Change mobius-server version from 12.5.2 to 12.6.0
+   vim conf/images.csv
+   # mobius-server:12.6.0
+   ```
+
+2. **Update .env.local:**
+   ```bash
+   # Make sure .env.local matches
+   MOBIUS_SERVER_IMAGE=12.6.0
+   ```
+
+3. **Pre-pull new images:**
+   ```bash
+   ./04_pullimages.sh
+   # Reads from images.csv and pulls the images
+   ```
+
+4. **Deploy with new versions:**
+   ```bash
+   ./05_terraform.sh
+   # Passes MOBIUS_SERVER_IMAGE from .env.local to Terraform
+   # Terraform creates deployments with image:12.6.0
+   ```
+
+#### Verification
+
+**Check currently deployed versions:**
+```bash
+# View Kubernetes deployments
+kubectl get deployment -n mobius -o wide
+
+# Check image tag in specific deployment
+kubectl get deployment mobius-server -n mobius -o jsonpath='{.spec.template.spec.containers[0].image}'
+```
+
+#### Best Practices
+
+1. **Keep conf/images.csv as source of truth** - All other versions should match it
+2. **Update .env.local before deployment** - Ensure image versions are synchronized
+3. **Run 04_pullimages.sh before 05_terraform.sh** - Pre-pull images for faster deployment
+4. **Verify images in registry** - Before deploying, ensure images exist in your registry
+5. **Test in non-production first** - Validate new versions before production deployment
+
+---
+
+### 4.6 ↓
+Terraform variables (var_mobiusserver_image, etc.)
+        ↓
+Kubernetes Deployments (actual image versions used)
+```
 
 #### Usage:
 ```bash
@@ -624,6 +756,45 @@ The main automation script that orchestrates the entire Terraform deployment pro
 
 **Purpose:** Contains all environment variables required for **your specific deployment**.
 
+**Image Version Synchronization:**
+
+The `.env.local` file now includes image version variables that should match `conf/images.csv`:
+
+```bash
+# From conf/images.csv
+MOBIUS_SERVER_IMAGE=12.5.2
+MOBIUS_VIEW_IMAGE=12.5.2
+EVENT_ANALYTICS_IMAGE=2.0.9
+SMART_CHAT_IMAGE=1.2.8
+SMART_CHAT_QUERY_LOGS_IMAGE=1.2.2
+SMART_CHAT_INDEXING_PROXY_IMAGE=1.2.2
+DOCKER_REGISTRY=localhost:5000
+```
+
+These variables are used by:
+- **`04_pullimages.sh`** - Pre-pulls container images from the registry
+- **`05_terraform.sh`** - Passes image versions to Terraform during deployment
+- **Terraform modules** - Uses image versions in Helm chart values and deployments
+
+**Workflow for Image Updates:**
+
+1. Update `conf/images.csv` with new image versions
+2. Update `.env.local` with matching versions:
+   ```bash
+   # Edit .env.local to match images.csv
+   MOBIUS_SERVER_IMAGE=<new_version>
+   EVENT_ANALYTICS_IMAGE=<new_version>
+   # etc.
+   ```
+3. Pre-pull images:
+   ```bash
+   ./04_pullimages.sh
+   ```
+4. Deploy with matching versions:
+   ```bash
+   ./05_terraform.sh
+   ```
+
 **Creation:**
 ```bash
 cp .env.example .env.local
@@ -640,6 +811,30 @@ cp .env.example .env.local
 | `MOBIUS_LICENSE` | Mobius product license key | `LICENSE_KEY_HERE` |
 | `PVC_STORAGE_CLASS` | Kubernetes storage class name | `nfs-storage` |
 | `PVC_STORAGE_CAPACITY` | Storage volume capacity | `100Gi` |
+
+#### Image Version Synchronization
+
+The `.env.local` file includes image version variables from `conf/images.csv`. When creating `.env.local`, you should:
+
+1. Ensure image versions match `conf/images.csv`
+2. Keep all image version variables in sync across:
+   - `conf/images.csv` (source of truth)
+   - `.env.local` (used by scripts and Terraform)
+   - `04_pullimages.sh` (reads images.csv)
+   - `05_terraform.sh` (passes to Terraform)
+
+**Example:**
+```bash
+# conf/images.csv content:
+# eventanalytics:2.0.9
+# mobius-server:12.5.2
+# mobius-view:12.5.2
+
+# Should match in .env.local:
+EVENT_ANALYTICS_IMAGE=2.0.9
+MOBIUS_SERVER_IMAGE=12.5.2
+MOBIUS_VIEW_IMAGE=12.5.2
+```
 
 **Optional Variables:**
 
@@ -669,16 +864,186 @@ cp .env.example .env.local
 | `VAR_EVENT_ANALYTICS_IMAGE` | Event Analytics image version | `2.0.9` |
 | `VAR_SMART_CHAT_IMAGE` | Smart Chat image version | `1.2.8` |
 
-#### `.env.example` - Template for Configuration
+### 4.5 Image Version Management (conf/images.csv Integration)
+
+#### Understanding Image Version Workflow
+
+The image versions are **centrally managed in `conf/images.csv`** as the single source of truth. A synchronization script (`sync_image_versions.sh`) automatically updates `.env.local` and `.env.example` to match.
+
+**conf/images.csv Format:**
+```csv
+#image:version
+eventanalytics:2.0.9
+mobius-server:12.5.2
+mobius-view:12.5.2
+smart-chat:1.2.8
+smart-chat-query-logs:1.2.2
+smart-chat-indexing-proxy:1.2.2
+```
+
+#### Automatic Synchronization
+
+**lib/sync_image_versions.sh** automatically:
+1. Reads image versions from `conf/images.csv`
+2. Updates `MOBIUS_SERVER_IMAGE`, `EVENT_ANALYTICS_IMAGE`, etc. in `.env.local`
+3. Updates the same variables in `.env.example`
+4. Reports all changes
+
+**Execution:**
+```bash
+# Manual synchronization
+./lib/sync_image_versions.sh
+
+# Automatic (runs automatically when you execute 05_terraform.sh)
+./05_terraform.sh
+```
+
+#### Simplified Update Workflow
+
+**When updating to a new version (simplified):**
+
+1. **Update conf/images.csv (ONLY FILE YOU NEED TO EDIT):**
+   ```bash
+   # Change mobius-server version from 12.5.2 to 12.6.0
+   vim conf/images.csv
+   # Change line: mobius-server:12.5.2
+   # To: mobius-server:12.6.0
+   ```
+
+2. **Deploy (synchronization happens automatically):**
+   ```bash
+   ./05_terraform.sh
+   # This automatically:
+   # - Runs sync_image_versions.sh
+   # - Updates .env.local with new versions
+   # - Loads updated variables
+   # - Deploys with new versions
+   ```
+
+**Alternative manual workflow:**
+```bash
+# 1. Update conf/images.csv
+vim conf/images.csv
+
+# 2. Manually sync versions
+./lib/sync_image_versions.sh
+
+# 3. Pre-pull images (optional but recommended)
+./04_pullimages.sh
+
+# 4. Deploy
+./05_terraform.sh
+```
+
+#### Variables in Different Files
+
+**Environment Variables (.env.local/.env.example):**
+```bash
+MOBIUS_SERVER_IMAGE=12.5.2
+MOBIUS_VIEW_IMAGE=12.5.2
+EVENT_ANALYTICS_IMAGE=2.0.9
+SMART_CHAT_IMAGE=1.2.8
+SMART_CHAT_QUERY_LOGS_IMAGE=1.2.2
+SMART_CHAT_INDEXING_PROXY_IMAGE=1.2.2
+DOCKER_REGISTRY=localhost:5000
+```
+
+**Terraform Variables (terra/kube/var-*.tf):**
+```terraform
+variable "var_mobiusserver_image" {
+  default = "12.5.2"
+}
+
+variable "var_mobiusview_image" {
+  default = "12.5.2"
+}
+
+variable "var_eventanalytics_image" {
+  default = "2.0.9"
+}
+
+variable "var_smart_chat_image" {
+  default = "1.2.8"
+}
+```
+
+#### How 05_terraform.sh Uses Image Versions
+
+The script passes image versions to Terraform:
+
+```bash
+terraform apply \
+  -var=var_mobiusserver_image="${MOBIUS_SERVER_IMAGE}" \
+  -var=var_mobiusview_image="${MOBIUS_VIEW_IMAGE}" \
+  -var=var_eventanalytics_image="${EVENT_ANALYTICS_IMAGE}" \
+  -var=var_smart_chat_image="${SMART_CHAT_IMAGE}" \
+  -var=var_smart_chat_query_logs_image="${SMART_CHAT_QUERY_LOGS_IMAGE}" \
+  -var=var_smart_chat_indexing_proxy_image="${SMART_CHAT_INDEXING_PROXY_IMAGE}" \
+  ...
+```
+
+#### Update Workflow
+
+**When updating to a new version:**
+
+1. **Update conf/images.csv:**
+   ```bash
+   # Change mobius-server version from 12.5.2 to 12.6.0
+   vim conf/images.csv
+   # mobius-server:12.6.0
+   ```
+
+2. **Update .env.local:**
+   ```bash
+   # Make sure .env.local matches
+   MOBIUS_SERVER_IMAGE=12.6.0
+   ```
+
+3. **Pre-pull new images:**
+   ```bash
+   ./04_pullimages.sh
+   # Reads from images.csv and pulls the images
+   ```
+
+4. **Deploy with new versions:**
+   ```bash
+   ./05_terraform.sh
+   # Passes MOBIUS_SERVER_IMAGE from .env.local to Terraform
+   # Terraform creates deployments with image:12.6.0
+   ```
+
+#### Verification
+
+**Check currently deployed versions:**
+```bash
+# View Kubernetes deployments
+kubectl get deployment -n mobius -o wide
+
+# Check image tag in specific deployment
+kubectl get deployment mobius-server -n mobius -o jsonpath='{.spec.template.spec.containers[0].image}'
+```
+
+#### Best Practices
+
+1. **Keep conf/images.csv as source of truth** - All other versions should match it
+2. **Update .env.local before deployment** - Ensure image versions are synchronized
+3. **Run 04_pullimages.sh before 05_terraform.sh** - Pre-pull images for faster deployment
+4. **Verify images in registry** - Before deploying, ensure images exist in your registry
+5. **Test in non-production first** - Validate new versions before production deployment
+
+### 4.6 .env.local and .env.example Configuration Files
 
 **Purpose:** Template file showing all available configuration options with example values.
+
+**Image Version Synchronization:**
+
+The `.env.example` file includes image version variables from `conf/images.csv`. When creating `.env.local`, ensure image versions are synchronized.
 
 **Usage:**
 1. Copy to `.env.local`
 2. Edit with your actual values
 3. Never modify `.env.example` for your deployment
-
-**Security Considerations:**
+4. Keep image versions synchronized with `conf/images.csv`**
 - **NEVER commit `.env.local` to version control** (add to `.gitignore`)
 - **NEVER share `.env.local` publicly** (contains sensitive credentials)
 - Keep `.env.local` file with restricted permissions: `chmod 600 .env.local`
@@ -763,6 +1128,7 @@ cp .env.example .env.local
 | File | Purpose |
 |------|---------|
 | `05_terraform.sh` | Main orchestration script for Terraform deployment |
+| `lib/sync_image_versions.sh` | Synchronizes image versions from conf/images.csv to .env files |
 | `.env.example` | Template for environment configuration |
 | `.env.local` | User configuration with sensitive credentials (not in version control) |
 
@@ -826,6 +1192,7 @@ cp .env.example .env.local
 | `registry.sh` | Container registry functions | `lib/` |
 | `get_helm.sh` | Helm installation script | `lib/` |
 | `ingress.sh` | Ingress configuration functions | `lib/` |
+| `sync_image_versions.sh` | Synchronize image versions from conf/images.csv | `lib/` |
 
 #### Installation Scripts
 | File | Purpose |
@@ -833,7 +1200,8 @@ cp .env.example .env.local
 | `00_install_wsl.cmd` | Windows WSL installation script |
 | `01_install_docker.sh` | Docker installation script |
 | `02_install_helm_kubectl.sh` | Helm and kubectl installation |
-| `03_install_rancher_terraform.sh` | Rancher and Terraform installation |
+| `03_install_rancher_terraform.sh` | Rancher and(reads from conf/images.csv) |
+| `sync_image_versions.sh` | Synchronize image versions from conf/images.csv to .env files  Terraform installation |
 | `04_pullimages.sh` | Pre-pull container images |
 
 #### Configuration and Documentation

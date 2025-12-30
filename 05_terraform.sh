@@ -9,6 +9,14 @@ TERRA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/terra/kube"
 # Source the common and registry scripts.
 source "$CORE_SCRIPTS_DIR/common.sh"
 
+# Synchronize image versions from conf/images.csv to .env files
+log INFO "Synchronizing image versions from conf/images.csv..."
+if [ -f "$CORE_SCRIPTS_DIR/sync_image_versions.sh" ]; then
+    bash "$CORE_SCRIPTS_DIR/sync_image_versions.sh"
+else
+    log WARN "sync_image_versions.sh not found. Skipping image version synchronization."
+fi
+
 # Load environment variables from .env.local
 if [ -f ".env.local" ]; then
     source ".env.local"
@@ -63,6 +71,11 @@ log INFO "  Namespace: ${NAMESPACE}"
 log INFO "  Docker Registry: ${DOCKER_REGISTRY:-registry.rocketsoftware.com}"
 log INFO "  PVC Storage Class: ${PVC_STORAGE_CLASS}"
 log INFO "  PVC Storage Capacity: ${PVC_STORAGE_CAPACITY}"
+log INFO "  Image Versions:"
+log INFO "    - Mobius Server: ${MOBIUS_SERVER_IMAGE}"
+log INFO "    - Mobius View: ${MOBIUS_VIEW_IMAGE}"
+log INFO "    - Event Analytics: ${EVENT_ANALYTICS_IMAGE}"
+log INFO "    - Smart Chat: ${SMART_CHAT_IMAGE}"
 
 terraform apply \
   -var=var_namespace_mobius="${NAMESPACE:-mobius}" \
@@ -72,7 +85,13 @@ terraform apply \
   -var=var_mobius_license="${MOBIUS_LICENSE}" \
   -var=var_smart_chat_openai_api_key="${OPENAI_KEY}" \
   -var=var_pvc_storage_class="${PVC_STORAGE_CLASS}" \
-    -var=var_pvc_storage_capacity="${PVC_STORAGE_CAPACITY}" \
+  -var=var_pvc_storage_capacity="${PVC_STORAGE_CAPACITY}" \
+  -var=var_mobiusserver_image="${MOBIUS_SERVER_IMAGE}" \
+  -var=var_mobiusview_image="${MOBIUS_VIEW_IMAGE}" \
+  -var=var_eventanalytics_image="${EVENT_ANALYTICS_IMAGE}" \
+  -var=var_smart_chat_image="${SMART_CHAT_IMAGE}" \
+  -var=var_smart_chat_query_logs_image="${SMART_CHAT_QUERY_LOGS_IMAGE}" \
+  -var=var_smart_chat_indexing_proxy_image="${SMART_CHAT_INDEXING_PROXY_IMAGE}" \
   -auto-approve 2>&1 | tee terraform.log
 
 if [ $? -eq 0 ]; then
