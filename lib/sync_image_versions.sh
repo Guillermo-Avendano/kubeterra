@@ -5,9 +5,10 @@ set -Eeuo pipefail
 # This ensures conf/images.csv is the single source of truth
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-IMAGES_CSV="${SCRIPT_DIR}/conf/images.csv"
-ENV_LOCAL="${SCRIPT_DIR}/.env.local"
-ENV_EXAMPLE="${SCRIPT_DIR}/.env.example"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+IMAGES_CSV="${PROJECT_DIR}/conf/images.csv"
+ENV_LOCAL="${PROJECT_DIR}/.env.local"
+ENV_EXAMPLE="${PROJECT_DIR}/.env.example"
 
 # Function to extract version from images.csv
 get_image_version() {
