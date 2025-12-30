@@ -35,9 +35,9 @@ fullnameOverride: postgresql
 
 resources:
   requests:
-    cpu: 50m
-    memor250m
-    memory: 256
+    cpu: 250m
+    memory: 256Mi
+
 primary:
   persistence:
     enabled: false
