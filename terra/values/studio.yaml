@@ -1,0 +1,69 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: ${replicaCount}
+namespace: ${namespace}
+image:
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  name: ${image.pullSecret}
+
+spring:
+  datasource:
+    url: "${spring.datasource.url}"
+    username: "${spring.datasource.username}"
+    password: "${spring.datasource.password}"
+    driverClassName: ${spring.datasource.driverClassName}
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            authorization:
+              uri: http://${services.appmanager}:8521/appmanager
+
+studio:
+  projectTemplates:
+    - templateName: ${studio.templateName}
+      templatePath: /home/asg/templates
+      templateLocalPath: ${studio.templateLocalPath}
+  service:
+    processEngineUrl: "http://${services.processengine}:8522/process/rest"
+    mobiusResourcesUrl: "http://${services.mobiusview}:80/mobius/rest/resources"
+
+persistence:
+  enabled: ${persistence.enabled}
+  claimName: ${persistence.claimName}
+
+additionalVolumeMounts:
+  - name: studio-data
+    mountPath: /home/asg/templates
+
+additionalVolumes:
+  - name: studio-data
+    persistentVolumeClaim:
+      claimName: ${persistence.claimName}
+
+asg:
+  security:
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+        groupNames:
+        groupSeparator:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: "${asg.security.jwt.privateKey}"
+          publicKey: "${asg.security.jwt.publicKey}"
+          expireSeconds: 36000
+  authorization:
+    enabled: true

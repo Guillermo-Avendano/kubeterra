@@ -9,7 +9,7 @@ resource "helm_release" "smart_chat" {
   ]
 
   name            = "smart-chat"
-  chart           = "${path.root}/../charts/${var.var_smart_chat_chart_file}"
+  chart           = "${path.root}/../helm_charts/${var.var_smart_chat_chart_file}"
   namespace       = var.var_namespace_mobius
   timeout         = 600
   wait            = true

@@ -1,0 +1,104 @@
+replicaCount: 1
+env:
+  LOG_LEVEL: "INFO"
+  OPENSEARCH_HOST: "localhost"
+  OPENSEARCH_PORT: "9200"
+  OPENSEARCH_USERNAME: "admin"
+  OPENSEARCH_PASSWORD: "Rocket@123#!_"
+  OPENSEARCH_AWS_ENABLED: "false"
+  OPENSEARCH_AWS_REGION: "us-east-1"
+  OPENSEARCH_SERVER_SSL_ENABLED: "false"
+  OPENSEARCH_CLIENT_SSL_ENABLED: "false"
+
+  OPENSEARCH_LOG_INDEX_PREFIX: "smart_chat_log_index"
+
+image:
+  repository: registry.rocketsoftware.com/smart-chat-admin
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 1.1.5
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "smart-chat-admin"
+
+podAnnotations: {}
+
+podSecurityContext: 
+  runAsNonRoot: false
+
+securityContext:
+  runAsNonRoot: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: 
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  podport: 8100
+
+resources: 
+  limits:
+    cpu: 500m
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Admin users (role: admin, require password change on first login)
+adminUsers:
+  - username: ""
+    password: ""
+
+# Regular users (role: user, require password change on first login)
+regularUsers:
+  - username: ""
+    password: ""
+  - username: ""
+    password: ""
+
+volumes:
+  logdir:
+    name: logdir
+  smart_chat_admin_certs:
+    name: smart-chat-admin-certs
+    secret:
+      defaultMode: 420
+      secretName: smart-chat--admin-certs
+volumeMounts:
+  smart_chat_admin_certs:
+    mountPath: /app/certs
+    ca_bundle_cert: root-ca.pem 
+    client_cert: client.pem
+    client_key: client-key.pem
+  smart_chat_admin_logs:
+    mountPath: /app/logs       
+
+

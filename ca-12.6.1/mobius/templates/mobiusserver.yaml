@@ -1,0 +1,58 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_MOBIUS>
+  tag: <IMAGE_VERSION_MOBIUS>
+  pullPolicy: IfNotPresent
+mobius:
+  admin:
+    #Adding a group to the document server to be accessed from. Accepts comma separated values
+    group: "mobiusadmin"
+    user: "system"
+  rds:
+    #provider is the DBMS System being used. "ORACLE" or "POSTGRESQL".
+    provider: "POSTGRESQL"
+    #endpoint is the hostname of the RDS Database
+    endpoint: "<POSTGRESQL_HOST>"
+    #port is the port used by the Database
+    port: "<POSTGRESQL_PORT>"
+    #initOrUpgrade is used to specify if the db should be intialized or upgraded during startup
+    initOrUpgrade: "<RDSINITORUPGRADE>"
+    #credentials
+    # Placeholders will replaced in runtime based on .env file
+    user: "<POSTGRESQL_USERNAME>"
+    password: "<POSTGRESQL_PASSWORD>"
+    schema: "<POSTGRESQL_DBNAME_MOBIUS>"
+  persistentVolume:
+    enabled: true
+    claimName: "mobius-pv-claim"
+  mobiusDiagnostics:
+    persistentVolume:
+      #enabled is the flag to indicate whether persistence claim for mobius diagnostics report is required or not
+      #By setting the value as false, application logs will be lost when the pod is removed
+      enabled: true
+      # persistent volume claim name for mobius diagnostics report
+      claimName: "mobius-diagnostic-pv-claim"
+  createDocumentServer: "YES"
+  fts:
+      #enabled set to yes to turn on full text search
+      enabled: "YES"
+
+      persistentVolume:
+        enabled: true
+        claimName: "mobius-fts-pv-claim"
+
+      #Uncomment to enable elasticsearch for FTS
+      engineType: "elasticsearch"
+      serverProtocol: "HTTP"
+      host: <ELASTICSEARCH_HOST>
+      port: <ELASTICSEARCH_PORT>
+      indexName: <ELASTICSEARCH_INDEX>
+service:
+  type: ClusterIP

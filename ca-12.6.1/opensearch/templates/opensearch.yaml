@@ -1,0 +1,68 @@
+---
+replicas: 1
+
+image:
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/opensearchproject/opensearch
+  tag: "<OPENSEARCH_VERSION>"
+  pullPolicy: IfNotPresent
+
+# Permit co-located instances for solitary  virtual machines.
+antiAffinity: "soft"
+
+protocol: https
+httpPort: 9200
+transportPort: 9300
+
+# Shrink default JVM heap.
+opensearchJavaOpts: "-Xmx512m -Xms512m"
+
+extraEnvs:
+  - name: discovery.type
+    value: single-node
+  - name: cluster.initial_master_nodes
+    value: null
+  - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    value: "Rocket@123#!_"
+
+# Init container helper (uses your k3d local registry busybox image)
+extraInitContainers:
+  - name: inithelper
+    image: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/busybox:latest
+    imagePullPolicy: IfNotPresent
+    command: ["sh", "-c", "echo init done"]
+
+persistence:
+  enabled: true
+  enableInitChown: true
+
+  # Override fsgroup-volume initContainer image (default is busybox:latest on Docker Hub)
+  image: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/busybox
+  imageTag: latest
+
+  accessModes:
+    - ReadWriteOnce
+  storageClass: "manual"
+  size: 100M
+
+startupProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 30
+  failureThreshold: 30
+
+# Allocate smaller chunks of memory per pod.
+initResources:
+  requests:
+    cpu: "50m"
+    memory: "256M"
+  limits:
+    cpu: "100m"
+    memory: "512M"
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"

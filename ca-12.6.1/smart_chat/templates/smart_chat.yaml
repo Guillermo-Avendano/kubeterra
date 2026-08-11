@@ -1,0 +1,29 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_SMART_CHAT>
+  pullPolicy: IfNotPresent
+  tag: <IMAGE_VERSION_SMART_CHAT>
+env:
+  LOG_LEVEL: "INFO"
+  OPENSEARCH_HOST: "opensearch-cluster-master"
+  OPENSEARCH_PORT: "9200"
+  #Hence, it is not recommended to keep the username and password here. We will move them to the secret file in the next commit.
+  OPENSEARCH_USERNAME: "admin"
+  OPENSEARCH_PASSWORD: "Rocket@123#!_"
+  OPENSEARCH_INDEX: <SMART_CHAT_INDEX>
+  QUERY_ROUTER_ENABLED: <SMART_CHAT_QUERY_ROUTER_ENABLED>
+  QUERY_OPTIMIZATION: <SMART_CHAT_QUERY_OPTIMIZATION> 
+  WORKERS: <SMART_CHAT_WORKERS>
+sidecar_logger:
+  name: smart-chat-query-logs
+  image: 
+    repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_SMART_CHAT_QUERY_LOGS>
+    pullPolicy: IfNotPresent
+    tag: <IMAGE_VERSION_SMART_CHAT_QUERY_LOGS>

@@ -1,0 +1,345 @@
+# Default values for content-automation umbrella chart
+# This chart supports two deployment modes:
+# 1. combined: All three services (studio, appmanager, processengine) in a single Pod
+# 2. separate: Each service deployed in its own Pod
+
+# Deployment mode: "combined" or "separate" by default "separate"
+deploymentMode: separate
+
+contentAutomation:
+  imagePullSecrets:
+    name: dockerlocal
+  image:
+    studio:
+      registry: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>
+      name: <IMAGE_NAME_STUDIO>
+      tag: <IMAGE_VERSION_STUDIO>
+      pullPolicy: IfNotPresent
+    appmanager:
+      registry: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>
+      name: <IMAGE_NAME_APPMANAGER>
+      tag: <IMAGE_VERSION_APPMANAGER>
+      pullPolicy: IfNotPresent
+    processengine:
+      registry: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>
+      name: <IMAGE_NAME_PROCESSENGINE>
+      tag: <IMAGE_VERSION_PROCESSENGINE>
+      pullPolicy: IfNotPresent
+
+  processEngineUrl: "http://contentautomation-processengine:8522/contentautomation/process/rest"
+  studioServiceUrl: http://contentautomation-studio:8082/contentautomation/studio
+  contentautomationServiceUrl: http://contentautomation-appmanager:8521/contentautomation/appmanager
+  authorizationServiceHost: http://contentautomation-appmanager:8521/contentautomation/appmanager/rest/authorization
+  mobiusResourcesUrl: "http://mobiusview:80/mobius/rest/resources"
+  mobiusViewUrl: http://mobiusview:80/mobius/rest
+
+  logging:
+    level:
+      root: INFO
+      com.asg.services: ERROR
+      org:
+        hibernate: INFO
+        flywaydb: INFO
+        springframework: INFO
+        glassfish:
+          jersey: INFO
+        reflections: ERROR
+
+  security:
+    enabled: true
+    urlPatterns: /rest/*
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: <MOBIUSVIEW_SECURITY_JWT_PRIVATEKEY>
+          publicKey: <MOBIUSVIEW_SECURITY_JWT_PUBLICKEY>
+          expireSeconds: 36000
+    iam:
+      ldap:
+        enabled: false
+        server: abc.com
+        port: 389
+        user: "CN=TEST,OU=Testing Accounts,OU=User Accounts,DC=asg,DC=com"
+        ldapPasswordSecretValue: password
+        password: "TEST"
+        groupDN: "DC=abc,DC=com"
+        userDN: "OU=User Accounts,DC=abc,DC=com"
+        userAttributes: "cn,memberof,proxyAddresses,textEncodedORAddress,mail"
+        searchType: "CONTAINS"
+
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            authorization:
+              uri: http://contentautomation-appmanager:8521
+              metadata:
+                context: contentautomation/appmanager
+
+spring:
+  datasource:
+    # Secret key names (shared across all services since they're always the same)
+    databaseUrlSecretValue: url
+    databaseUsernameSecretValue: username
+    databasePasswordSecretValue: password
+
+    # Service-specific database URLs with their own credentials
+    studio:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_STUDIO>"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+      driverClassName: org.postgresql.Driver
+
+    #-----------------------------------------------------------------------------------
+    # Studio Smart Extractor DataSource (OPTIONAL for PostgreSQL)
+    # If not configured, database 'studio_smart_extractor' will be auto-created
+    #-----------------------------------------------------------------------------------
+    studio-smart-extractor:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/studio_smart_extractor"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+      driverClassName: org.postgresql.Driver
+
+    appmanager:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_APPMANAGER>"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+      driverClassName: org.postgresql.Driver
+
+    appmanager-smart-extractor:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/appmanager_smart_extractor"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+      driverClassName: org.postgresql.Driver
+
+    processengine:
+      flowable:
+        url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_PROCESSENGINE_FLOWABLE>"
+        username: "<POSTGRESQL_USERNAME>"
+        password: "<POSTGRESQL_PASSWORD>"
+        driverClassName: org.postgresql.Driver
+      root:
+        url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_PROCESSENGINE_ROOT>"
+        username: "<POSTGRESQL_USERNAME>"
+        password: "<POSTGRESQL_PASSWORD>"
+        driverClassName: org.postgresql.Driver
+
+
+
+#######################################################################################
+##                  Studio Configuration
+#######################################################################################
+studio:
+  replicaCount: 1
+  securityContext:
+    runAsNonRoot: false
+
+  spring:
+    datasource:
+      databaseConnectivitySecretName:
+    jpa:
+      hibernate:
+        ddlAuto: none
+  # projectTemplates: Project templates are external .proj files that can be used in Studio as templates while creating a new project.
+  # templateName: Template name is optional and is shown as the display name in the dropdown. If not provided, the actual file name will be shown.
+  # templatePath: Absolute path of the .proj template file
+  # We can add multiple project templates as shown in the example below.
+
+  # Example:
+  # - templateName: SmartExtractor
+  #   templatePath: C:\Templates\extractor.proj
+  projectTemplates:
+    #- templateName: <OPTIONAL_DISPLAY_TEMPLATE_NAME>
+    #templatePath: /home/asg/templates
+    #templateLocalPath: <MANDATORY_TEMPLATE_PATH>
+
+    security:
+      authorization:
+        enabled: true
+
+  authorization:
+    enabled: true
+  EnableAI: false
+
+  extraEnv:
+    ASG_SECURITY_URL_PATTERNS: /studio/rest/*
+    ASG_SECURITY_APPSERVER_URLPATTERNS: /studio/rest/*
+    ASG_SECURITY_JWT_SERVICETOKENSETTINGS_INTERNALCONFIG_URLPATTERNS: /*
+
+  service:
+    projectsMigrationPath: /home/asg/Studio_Workspace/Workspace/default_user/Projects
+    dsPoolSize: 10
+    encryptionKey: RocketEncryption #16 Character key used for sensitive information encryption
+    aiServiceUrl: 'http://<IP_ADDRESS>:<PORT>/api'
+    validProjectFolders: "UI Models,App Roles,Datasources,Process Models"
+    syncTreeExcludeFolders: "node_modules,.git,metaData"
+    openProjectExcludeFolder: "angular-Workspace,metaData,App Packages,.git,.svn"
+    scmIgnoreFileName: '.svn'
+    EnableAI: false
+    runningProperties: #on-prem or cloud
+      mode: studio
+      authorized_permissions: DeveloperAccess
+      authorized_scopes: authorization.fullaccess
+      httptimeout: 30000 # default timeout in ms
+
+  servlet:
+    multipart:
+      enabled: true
+
+  persistence:
+    enabled: false
+    claimName: studio-log-pv-claim
+
+  additionalVolumeMounts:
+    - name: studio-data
+      mountPath: /home/asg/templates
+
+  additionalVolumes:
+    - name: studio-data
+      persistentVolumeClaim:
+        claimName: studio-log-pv-claim
+
+
+#######################################################################################
+##                  Appmanager Configuration
+#######################################################################################
+appmanager:
+  enabled: true
+  replicaCount: 1
+  securityContext:
+    runAsNonRoot: false
+  spring:
+    datasource:
+      databaseConnectivitySecretName:
+  extraEnv:
+    ASG_SECURITY_URL_PATTERNS: /appmanager/rest/*
+    ASG_SECURITY_APPSERVER_URLPATTERNS: /appmanager/rest/*
+    ASG_SECURITY_JWT_SERVICETOKENSETTINGS_INTERNALCONFIG_URLPATTERNS: /*
+
+  asg:
+    security:
+    authorization:
+      enabled: true
+      group: false
+      username: admin
+      tenant: _
+  prs:
+    service:
+      client:
+        location: /home/asg/Web
+
+  persistence:
+    enabled: false
+    claimName: appmanager-log-pv-claim
+
+  additionalVolumeMounts: []
+
+  additionalVolumes: []
+#######################################################################################
+##                  Process Engine Configuration
+#######################################################################################
+processengine:
+  enabled: true
+  replicaCount: 1
+  securityContext:
+    runAsNonRoot: false
+
+  spring:
+    datasource:
+      flowable:
+        databaseConnectivitySecretName:
+        hibernate:
+          hbm2ddl:
+            auto: none
+
+  extraEnv:
+    ASG_SECURITY_URL_PATTERNS: /process/rest/*
+    ASG_SECURITY_APPSERVER_URLPATTERNS: /process/rest/*
+    ASG_SECURITY_JWT_SERVICETOKENSETTINGS_INTERNALCONFIG_URLPATTERNS: /*
+
+  asg:
+    security:
+    authorization:
+      enabled: true
+      group: false
+      username: admin
+      tenant: _
+
+  clientCertIgnore: true
+
+  flyway:
+    enabled: true
+
+  flowable:
+    mail:
+      server:
+        host: <PROCESS_MAIL_HOST>
+        defaultFrom: <PROCESS_MAIL_FROM_EMAIL_ID>
+        username: <PROCESS_MAIL_SERVER_USERNAME>
+        password: <PROCESS_MAIL_SERVER_PASSWORD>
+
+  awsAccessKey: <AWS_ACCESS_KEY>
+  awsSecretKey: <AWS_SECRET_KEY>
+  awsRegion: <AWS_REGION>
+  awsS3BucketInput: <AWS_S3_BUCKET_INPUT>
+  awsS3BucketOutput: <AWS_S3_BUCKET_OUTPUT>
+  awsSqsArn: <AWS_SQS_ARN>
+  awsSqsRole: <AWS_SQS_ROLE>
+  awsComprehendRole: <AWS_COMPREHEND_ROLE>
+
+  filestorage:
+    location: "/home/asg/tmp"
+    deletionSchedule: "0 0 * * * ?"
+  mobiusConnectorVersion: 12.0
+  ai:
+    mcp:
+      server:
+        enabled: true
+  agent:
+    enabled: false
+    llm:
+      openai:
+        api_key: <OPENAI_API_KEY>
+        generation_config:
+          model: "gpt-4o-mini"
+          temperature: 0.7
+    mcpservers:
+      - name: "MCP_SERVER"
+        transport: "SSE"
+        timeout: 300000
+        sse:
+          baseUrl: "http://<IP_ADDRESS>:<PORT>"
+          toolsPath: "/contentautomation/mcp"
+          auth:
+            type: "Basic"
+            token: "YWRtaW46YWRtaW4="
+
+  persistence:
+    enabled: false
+    claimName: processengine-pv-claim
+
+  additionalVolumeMounts:
+    - name: <PROCESSENGINE_MOUNT_NAME>
+      mountPath: <PROCESSENGINE_STORAGE_PATH>
+    - name: <PROCESSENGINE_MOUNT_NAME>
+      mountPath: <PROCESSENGINE_TARGET_PATH>
+    - name: <PROCESSENGINE_MOUNT_NAME>
+      mountPath: /home/asg/customFolder
+    - name: <PROCESSENGINE_MOUNT_NAME>
+      mountPath: /home/asg/tmp
+  additionalVolumes:
+    - name: <PROCESSENGINE_MOUNT_NAME>
+      persistentVolumeClaim:
+        claimName: process-pv-claim
+
+

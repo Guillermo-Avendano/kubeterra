@@ -8,7 +8,7 @@ resource "helm_release" "smart_chat_indexing_proxy" {
   ]
 
   name            = "smart-chat-indexing-proxy"
-  chart           = "${path.root}/../charts/${var.var_smart_chat_indexing_proxy_chart_file}"
+  chart           = "${path.root}/../helm_charts/${var.var_smart_chat_indexing_proxy_chart_file}"
   namespace       = var.var_namespace_mobius
   timeout         = 600
   wait            = true

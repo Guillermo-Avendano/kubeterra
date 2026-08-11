@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-add-headers
+  namespace: <NGINX_NAMESPACE>
+data:
+  Access-Control-Allow-Origin: "*"
+  Access-Control-Allow-Credentials: "true"
+  Access-Control-Allow-Headers: "*"
+  Access-Control-Expose-Headers: "*,Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Accept-Ranges,opaqueRepID,repositoryName,X-OpaqueToken,X-DocumentType,X-Mobius-Page-OriginalHeightPixels,X-Mobius-Page-OriginalWidthPixels,X-Mobius-Page-RenderedHeightPixels,X-Mobius-Page-RenderedScale,X-Mobius-Page-RenderedWidthPixels,X-Mobius-PageClass-Name,X-Mobius-PageClass-Version,X-Mobius-PageNumber,X-Mobius-PageNumber-WithinSectionCode,X-Mobius-PageVersionId,X-Mobius-Subpage-Origin,client-id"
+  Access-Control-Allow-Methods: "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH"
+  Content-Security-Policy: "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data:; font-src *; object-src *; media-src *; frame-src *; frame-ancestors *; connect-src *; worker-src *; child-src *;"
+  X-Content-Type-Options: "nosniff"  

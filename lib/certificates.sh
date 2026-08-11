@@ -7,10 +7,10 @@ set -Eeuo pipefail
 
 source "$CORE_SCRIPTS_DIR/common.sh"
 
-# Load environment variables if .env.local exists
+# Load environment variables from .env
 CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
-if [ -f "$CORE_DIR/.env.local" ]; then
-    source "$CORE_DIR/.env.local"
+if [ -f "$CORE_DIR/.env" ]; then
+    source "$CORE_DIR/.env"
 fi
 
 # Function to set up certificate directories

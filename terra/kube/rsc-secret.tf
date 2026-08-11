@@ -1,7 +1,7 @@
 # Create Docker Registry Secret for Mobius Server, Mobius View and Event Analytics
 resource "kubernetes_secret" "docker_registry_secret" {
 
-  count = (var.var_deploy_mobiusserver || var.var_deploy_mobiusview || var.var_deploy_eventanalytics) == true ? 1 : 0
+  count = (var.var_deploy_mobiusserver || var.var_deploy_mobiusview || var.var_deploy_eventanalytics || var.var_deploy_appmanager || var.var_deploy_studio || var.var_deploy_processengine) == true ? 1 : 0
   metadata {
     name      = var.var_mobius_image_pull_secret
     namespace = var.var_namespace_mobius

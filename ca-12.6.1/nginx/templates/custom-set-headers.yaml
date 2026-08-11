@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  X-Real-IP: "$remote_addr"
+  X-Forwarded-For: "$remote_addr"
+  X-Forwarded-Proto: "$scheme"
+  X-Forwarded-Host: "$host"
+  X-Forwarded-Port: "$server_port"
+  X-Remote-User: "$remote_user"
+  PROXY_GROUP: "mobiusadmin"
+  PROXY_USER: "$remote_user"
+kind: ConfigMap
+metadata:
+  name: custom-set-headers
+  namespace: <NGINX_NAMESPACE>

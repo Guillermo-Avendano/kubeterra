@@ -7,7 +7,7 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 IMAGES_CSV="${PROJECT_DIR}/conf/images.csv"
-ENV_LOCAL="${PROJECT_DIR}/.env.local"
+ENV_FILE="${PROJECT_DIR}/.env"
 ENV_EXAMPLE="${PROJECT_DIR}/.env.example"
 
 # Function to extract version from images.csv
@@ -54,6 +54,9 @@ EVENT_ANALYTICS_VERSION=$(get_image_version "eventanalytics")
 SMART_CHAT_VERSION=$(get_image_version "smart-chat")
 SMART_CHAT_QUERY_LOGS_VERSION=$(get_image_version "smart-chat-query-logs")
 SMART_CHAT_INDEXING_PROXY_VERSION=$(get_image_version "smart-chat-indexing-proxy")
+APPMANAGER_VERSION=$(get_image_version "appmanager")
+STUDIO_VERSION=$(get_image_version "studio")
+PROCESSENGINE_VERSION=$(get_image_version "processengine")
 
 echo ""
 echo "Image versions from conf/images.csv:"
@@ -63,24 +66,30 @@ echo "  eventanalytics: ${EVENT_ANALYTICS_VERSION}"
 echo "  smart-chat: ${SMART_CHAT_VERSION}"
 echo "  smart-chat-query-logs: ${SMART_CHAT_QUERY_LOGS_VERSION}"
 echo "  smart-chat-indexing-proxy: ${SMART_CHAT_INDEXING_PROXY_VERSION}"
+echo "  appmanager: ${APPMANAGER_VERSION}"
+echo "  studio: ${STUDIO_VERSION}"
+echo "  processengine: ${PROCESSENGINE_VERSION}"
 echo ""
 
-# Update .env.local
-if [ -f "$ENV_LOCAL" ]; then
-    echo "Updating .env.local..."
-    update_env_file "$ENV_LOCAL" "MOBIUS_SERVER_IMAGE" "$MOBIUS_SERVER_VERSION"
-    update_env_file "$ENV_LOCAL" "MOBIUS_VIEW_IMAGE" "$MOBIUS_VIEW_VERSION"
-    update_env_file "$ENV_LOCAL" "EVENT_ANALYTICS_IMAGE" "$EVENT_ANALYTICS_VERSION"
-    update_env_file "$ENV_LOCAL" "SMART_CHAT_IMAGE" "$SMART_CHAT_VERSION"
-    update_env_file "$ENV_LOCAL" "SMART_CHAT_QUERY_LOGS_IMAGE" "$SMART_CHAT_QUERY_LOGS_VERSION"
-    update_env_file "$ENV_LOCAL" "SMART_CHAT_INDEXING_PROXY_IMAGE" "$SMART_CHAT_INDEXING_PROXY_VERSION"
-    echo "✓ .env.local updated successfully"
+# Update .env
+if [ -f "$ENV_FILE" ]; then
+    echo "Updating .env..."
+    update_env_file "$ENV_FILE" "MOBIUS_SERVER_IMAGE" "$MOBIUS_SERVER_VERSION"
+    update_env_file "$ENV_FILE" "MOBIUS_VIEW_IMAGE" "$MOBIUS_VIEW_VERSION"
+    update_env_file "$ENV_FILE" "EVENT_ANALYTICS_IMAGE" "$EVENT_ANALYTICS_VERSION"
+    update_env_file "$ENV_FILE" "SMART_CHAT_IMAGE" "$SMART_CHAT_VERSION"
+    update_env_file "$ENV_FILE" "SMART_CHAT_QUERY_LOGS_IMAGE" "$SMART_CHAT_QUERY_LOGS_VERSION"
+    update_env_file "$ENV_FILE" "SMART_CHAT_INDEXING_PROXY_IMAGE" "$SMART_CHAT_INDEXING_PROXY_VERSION"
+    update_env_file "$ENV_FILE" "APPMANAGER_IMAGE" "$APPMANAGER_VERSION"
+    update_env_file "$ENV_FILE" "STUDIO_IMAGE" "$STUDIO_VERSION"
+    update_env_file "$ENV_FILE" "PROCESSENGINE_IMAGE" "$PROCESSENGINE_VERSION"
+    echo "✓ .env updated successfully"
 else
-    echo "⚠ .env.local not found. Creating from .env.example..."
+    echo "⚠ .env not found. Creating from .env.example..."
     if [ -f "$ENV_EXAMPLE" ]; then
-        cp "$ENV_EXAMPLE" "$ENV_LOCAL"
-        echo "✓ Created .env.local from .env.example"
-        echo "⚠ Please edit .env.local with your credentials before deploying"
+        cp "$ENV_EXAMPLE" "$ENV_FILE"
+        echo "✓ Created .env from .env.example"
+        echo "⚠ Please edit .env with your credentials before deploying"
     fi
 fi
 
@@ -95,6 +104,9 @@ if [ -f "$ENV_EXAMPLE" ]; then
     update_env_file "$ENV_EXAMPLE" "SMART_CHAT_IMAGE" "$SMART_CHAT_VERSION"
     update_env_file "$ENV_EXAMPLE" "SMART_CHAT_QUERY_LOGS_IMAGE" "$SMART_CHAT_QUERY_LOGS_VERSION"
     update_env_file "$ENV_EXAMPLE" "SMART_CHAT_INDEXING_PROXY_IMAGE" "$SMART_CHAT_INDEXING_PROXY_VERSION"
+    update_env_file "$ENV_EXAMPLE" "APPMANAGER_IMAGE" "$APPMANAGER_VERSION"
+    update_env_file "$ENV_EXAMPLE" "STUDIO_IMAGE" "$STUDIO_VERSION"
+    update_env_file "$ENV_EXAMPLE" "PROCESSENGINE_IMAGE" "$PROCESSENGINE_VERSION"
     echo "✓ .env.example updated successfully"
 fi
 
@@ -104,6 +116,6 @@ echo "✓ Image version synchronization complete"
 echo "=========================================="
 echo ""
 echo "Next steps:"
-echo "  1. Review changes in .env.local and .env.example"
-echo "  2. Run: ./04_pullimages.sh (to pre-pull new images)"
-echo "  3. Run: ./05_terraform.sh (to deploy with new versions)"
+echo "  1. Review changes in .env and .env.example"
+echo "  2. Run: ./kubeterra.sh images (to pre-pull new images)"
+echo "  3. Run: ./kubeterra.sh deploy (to deploy with new versions)"

@@ -187,5 +187,95 @@ locals {
   var_mobius_view_pvc_enabled             = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_mobius_view_pvc_enabled
   var_mobius_view_diag_pvc_enabled        = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_mobius_view_diag_pvc_enabled
   var_mobius_view_presentaion_pvc_enabled = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_mobius_view_presentaion_pvc_enabled
+
+  var_appmanager_pvc_enabled   = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_appmanager_pvc_enabled
+  var_studio_pvc_enabled       = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_studio_pvc_enabled
+  var_processengine_pvc_enabled = var.var_pvc_enabled ? var.var_pvc_enabled : var.var_processengine_pvc_enabled
+}
+
+# Generate JDBC URL based on the database type for AppManager
+locals {
+  var_appmanager_database_jdbc_url = (
+  upper(var.var_database_provider) == "POSTGRESQL" ?
+  "jdbc:postgresql://${var.var_database_hostname}:${var.var_database_port}/${var.var_database_appmanager_schema}${local.var_database_sslmode_url}" :
+
+  upper(var.var_database_provider) == "SQLSERVER" ?
+  "jdbc:sqlserver://${var.var_database_hostname}:${var.var_database_port};databaseName=${var.var_database_appmanager_schema}${var.var_database_sslmode != "disable" ? ";${var.var_database_sslmode}" : ""}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == true ?
+  "jdbc:oracle:thin:@${var.var_database_hostname}:${var.var_database_port}:${var.var_database_oracle_sid}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == false ?
+  "jdbc:oracle:thin:@//${var.var_database_hostname}:${var.var_database_port}/${var.var_database_oracle_service_name}" :
+
+  ""
+  )
+}
+
+# Generate JDBC URL based on the database type for Studio
+locals {
+  var_studio_database_jdbc_url = (
+  upper(var.var_database_provider) == "POSTGRESQL" ?
+  "jdbc:postgresql://${var.var_database_hostname}:${var.var_database_port}/${var.var_database_studio_schema}${local.var_database_sslmode_url}" :
+
+  upper(var.var_database_provider) == "SQLSERVER" ?
+  "jdbc:sqlserver://${var.var_database_hostname}:${var.var_database_port};databaseName=${var.var_database_studio_schema}${var.var_database_sslmode != "disable" ? ";${var.var_database_sslmode}" : ""}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == true ?
+  "jdbc:oracle:thin:@${var.var_database_hostname}:${var.var_database_port}:${var.var_database_oracle_sid}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == false ?
+  "jdbc:oracle:thin:@//${var.var_database_hostname}:${var.var_database_port}/${var.var_database_oracle_service_name}" :
+
+  ""
+  )
+}
+
+# Generate JDBC URL based on the database type for ProcessEngine
+locals {
+  var_processengine_flowable_database_jdbc_url = (
+  upper(var.var_database_provider) == "POSTGRESQL" ?
+  "jdbc:postgresql://${var.var_database_hostname}:${var.var_database_port}/${var.var_database_processengine_flowable_schema}${local.var_database_sslmode_url}" :
+
+  upper(var.var_database_provider) == "SQLSERVER" ?
+  "jdbc:sqlserver://${var.var_database_hostname}:${var.var_database_port};databaseName=${var.var_database_processengine_flowable_schema}${var.var_database_sslmode != "disable" ? ";${var.var_database_sslmode}" : ""}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == true ?
+  "jdbc:oracle:thin:@${var.var_database_hostname}:${var.var_database_port}:${var.var_database_oracle_sid}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == false ?
+  "jdbc:oracle:thin:@//${var.var_database_hostname}:${var.var_database_port}/${var.var_database_oracle_service_name}" :
+
+  ""
+  )
+
+  var_processengine_root_database_jdbc_url = (
+  upper(var.var_database_provider) == "POSTGRESQL" ?
+  "jdbc:postgresql://${var.var_database_hostname}:${var.var_database_port}/${var.var_database_processengine_root_schema}${local.var_database_sslmode_url}" :
+
+  upper(var.var_database_provider) == "SQLSERVER" ?
+  "jdbc:sqlserver://${var.var_database_hostname}:${var.var_database_port};databaseName=${var.var_database_processengine_root_schema}${var.var_database_sslmode != "disable" ? ";${var.var_database_sslmode}" : ""}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == true ?
+  "jdbc:oracle:thin:@${var.var_database_hostname}:${var.var_database_port}:${var.var_database_oracle_sid}" :
+
+  upper(var.var_database_provider) == "ORACLE" && var.var_database_oracle_use_sid == false ?
+  "jdbc:oracle:thin:@//${var.var_database_hostname}:${var.var_database_port}/${var.var_database_oracle_service_name}" :
+
+  ""
+  )
+}
+
+# Use common DB user/password for AppManager, Studio and ProcessEngine
+locals {
+  var_appmanager_database_user              = var.var_database_user
+  var_studio_database_user                  = var.var_database_user
+  var_processengine_flowable_database_user  = var.var_database_user
+  var_processengine_root_database_user      = var.var_database_user
+
+  var_appmanager_database_password             = var.var_database_password
+  var_studio_database_password                 = var.var_database_password
+  var_processengine_flowable_database_password = var.var_database_password
+  var_processengine_root_database_password     = var.var_database_password
 }
 

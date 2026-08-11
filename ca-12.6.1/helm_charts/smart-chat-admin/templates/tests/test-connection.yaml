@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "smart-chat-admin.fullname" . }}-test-connection"
+  labels:
+    {{- include "smart-chat-admin.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "smart-chat-admin.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

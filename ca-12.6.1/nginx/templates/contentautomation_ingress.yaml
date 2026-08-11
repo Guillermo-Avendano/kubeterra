@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mobius-contentautomation-ingress
+  namespace: contentautomation
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /contentautomation/appmanager/$1
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - admin'
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - localhost
+      secretName: nginx-cert
+  rules:
+    - host: <HOSTNAME>
+      http:
+        paths:
+          - path: /mobius/contentautomation/appmanager/(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: contentautomation-appmanager
+                port:
+                  number: 8521
+

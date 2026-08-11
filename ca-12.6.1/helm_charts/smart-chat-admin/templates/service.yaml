@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "smart-chat-admin.fullname" . }}
+  labels:
+    {{- include "smart-chat-admin.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.podport }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "smart-chat-admin.selectorLabels" . | nindent 4 }}

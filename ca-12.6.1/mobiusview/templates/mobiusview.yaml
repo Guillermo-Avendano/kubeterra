@@ -1,0 +1,92 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_MOBIUSVIEW>
+  tag: <IMAGE_VERSION_MOBIUSVIEW>
+  pullPolicy: IfNotPresent
+deploy:
+  fullstack: false
+service:
+  type: ClusterIP
+
+datasource:
+   url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_MOBIUSVIEW>"
+   username: "<POSTGRESQL_USERNAME>"
+   password: "<POSTGRESQL_PASSWORD>"
+
+initRepository:
+  enabled: true
+  host: "mobius"
+  port: "8080"
+  documentServer: "vdrnetds"
+  logLevel: "ERROR"
+  java:
+    opts: ""
+
+defaultSSOKey: "ADASDFASDFXGGEG25585"
+
+master:
+  persistence:
+   enabled: true
+   claimName: mobius-pv-claim
+   accessMode: ReadWriteMany
+   size: 1000M
+
+  mobiusViewDiagnostics:
+    persistentVolume:
+      enabled: true
+      claimName: mobiusview-diagnostic-pv-claim
+      accessMode: ReadWriteMany
+      size: 1000M
+      
+  presentations:
+    persistence:
+      #enabled is the flag to indicate whether presentation persistence claim is required or not    
+      enabled: true
+      #claimName is the name of the claim created by the user, which will be bound to the mapped persistence volume
+      claimName:  mobiusview-presentation-claim
+
+asg:
+  smartchat:
+    initconfig: <SMART_CHAT_ENABLED>
+    url: http://smart-chat:80
+  vendor:
+    type: ASG
+  bootstrap:
+    mobiusAdministratorUser:
+  workflow:
+    processContextRoot: http://contentautomation-processengine:8522/contentautomation/process/rest
+    processUrlPath: /repository/process-definitions
+    processInstancesUrlPath: /runtime/process-instances
+    processNotificationsUrlPath: /process/rest/query/tasks
+    inboxUrlPath: /appmanager/processinboxngx/index.html
+    indexUpdateWorkflowProcessName: MobiusAppsProject-IndexUpdateProcess
+    formsUrlPath: /rest/application/uiforms
+    designModeFormsUrlPath: /rest/projects/uiforms
+    formsContextRoot: http://contentautomation-appmanager:8521/contentautomation/appmanager
+    designModeFormsContextRoot: http://contentautomation-studio:8082/contentautomation/studio
+  authorization:
+    type: restserver
+    username: admin
+    enabled: true
+    group: false
+  security:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: "/rest/*"
+          privateKey: <MOBIUSVIEW_SECURITY_JWT_PRIVATEKEY>
+          publicKey: <MOBIUSVIEW_SECURITY_JWT_PUBLICKEY>
+          expireSeconds: 36000
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User

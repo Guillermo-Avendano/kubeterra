@@ -9,7 +9,7 @@ resource "helm_release" "eventanalytics" {
     kubernetes_stateful_set.kafka
   ]
   name            = "eventanalytics"
-  chart           = "${path.root}/../charts/${var.var_eventanalytics_chart_file}"
+  chart           = "${path.root}/../helm_charts/${var.var_eventanalytics_chart_file}"
   namespace       = var.var_namespace_mobius
   wait            = true
 #  atomic          = true

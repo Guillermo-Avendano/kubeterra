@@ -1,0 +1,53 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: ${replicaCount}
+namespace: ${namespace}
+image:
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  name: ${image.pullSecret}
+
+spring:
+  datasource:
+    url: "${spring.datasource.url}"
+    username: "${spring.datasource.username}"
+    password: "${spring.datasource.password}"
+    driverClassName: ${spring.datasource.driverClassName}
+
+prs:
+  service:
+    processEngineUrl: http://${prs.service.processEngineService}:8522/process/rest
+    mobiusViewUrl: http://${prs.service.mobiusViewService}:80/mobius/rest
+
+persistence:
+  enabled: ${persistence.enabled}
+  claimName: ${persistence.claimName}
+
+additionalVolumeMounts: []
+additionalVolumes: []
+
+asg:
+  security:
+    enabled: true
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+        groupNames:
+        groupSeparator:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: "${asg.security.jwt.privateKey}"
+          publicKey: "${asg.security.jwt.publicKey}"
+          expireSeconds: 36000
+  authorization:
+    enabled: true

@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  add-headers: "ingress-nginx/custom-add-headers"
+  proxy-set-headers: "ingress-nginx/custom-set-headers"
+  proxy-body-size: "0"
+  proxy_connect_timeout: "75s"
+  proxy-send-timeout: "90s"
+  proxy_read_timeout: "90s"
+  proxy-buffers-number: "32 4k"
+  default_type: "application/octet-stream"
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-nginx-controller
+  namespace: <NGINX_NAMESPACE>
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx

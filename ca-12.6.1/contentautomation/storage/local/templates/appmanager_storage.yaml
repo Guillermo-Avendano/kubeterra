@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: appmanager-pv-storage
+  labels:
+    type: appmanager-pv-storage
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "<APPMANAGER_PV_VOLUME>"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: appmanager-log-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  selector: 
+    matchLabels: 
+      type: appmanager-pv-storage    

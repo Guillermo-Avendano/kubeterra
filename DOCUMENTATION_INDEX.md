@@ -60,14 +60,9 @@ Before you begin, ensure you have:
 
 ```
 kubeterra/
-├── 00_install_wsl.cmd          # Windows WSL installation script
-├── 01_install_docker.sh         # Docker installation script
-├── 02_install_helm_kubectl.sh   # Helm and kubectl installation
-├── 03_install_rancher_terraform.sh  # Rancher and Terraform installation
-├── 04_pullimages.sh             # Pre-pull container images
-├── 05_terraform.sh              # Main Terraform deployment script
+├── kubeterra.sh                 # Single entrypoint (prereqs|cluster|images|deploy|all|doctor)
 ├── .env.example                 # Environment configuration template
-├── .env.local                   # Your configuration (not in version control)
+├── .env                         # Active configuration (not in version control)
 ├── README.md                    # Project overview
 ├── QUICK_START.md               # Quick start guide
 ├── TERRAFORM_VARIABLE_PRECEDENCE.md  # Variable priority documentation
@@ -121,18 +116,18 @@ kubeterra/
 cd /path/to/kubeterra
 
 # Create environment variables file
-cp .env.example .env.local
+cp .env.example .env
 
 # Edit with your actual credentials
-# On Windows: notepad .env.local
-# On Linux/Mac: vim .env.local
+# On Windows: notepad .env
+# On Linux/Mac: vim .env
 ```
 
 #### Step 2: Validate Configuration (2 minutes)
 
 ```bash
 # Load environment variables
-source .env.local
+source .env
 
 # Verify that variables were loaded
 echo "Docker User: $DOCKER_USERNAME"
@@ -164,7 +159,7 @@ terraform apply tfplan
 terraform output deployment_summary
 ```
 
-### 2.2 Required Variables in .env.local
+### 2.2 Required Variables in .env
 
 **Mandatory Variables:**
 
@@ -209,12 +204,12 @@ kubectl get deployments -n mobius
 ### 2.4 Security Best Practices
 
 ✅ **Protected:**
-- `.env.local` - In .gitignore (not uploaded to git)
+- `.env` - In .gitignore (not uploaded to git)
 - `terraform.tfstate` - In .gitignore (not uploaded to git)
 - Sensitive variables - Marked as `sensitive = true`
 
 ⚠️ **IMPORTANT:**
-- **NEVER commit `.env.local`** to version control
+- **NEVER commit `.env`** to version control
 - **NEVER commit `terraform.tfstate`** to version control
 - **NEVER share your credentials** publicly
 - Use a secret manager for production (AWS Secrets, Vault, etc)
@@ -271,12 +266,12 @@ terraform init
 ### 2.7 Typical Workflow
 
 ```bash
-# 1. Make changes in .env.local or Terraform code
-vim .env.local
+# 1. Make changes in .env or Terraform code
+vim .env
 vim terra/kube/variables.tf
 
 # 2. Load variables
-source .env.local
+source .env
 
 # 3. Review changes
 cd terra/kube
@@ -562,7 +557,7 @@ In reality, Terraform builds a DAG (Directed Acyclic Graph) of dependencies and 
 - All resources depend on provider configuration in `provider.tf`
 - All computation depends on variables defined in `variables.tf` and `locals.tf`
 
-### 4.4 Script Execution: 05_terraform.sh
+### 4.4 Script Execution: kubeterra.sh deploy
 
 The main automation script that orchestrates the entire Terraform deployment process.
 
@@ -573,8 +568,8 @@ The main automation script that orchestrates the entire Terraform deployment pro
    - Sources common helper scripts from `lib/common.sh`
 
 2. **Environment Variables Loading**
-   - Loads configuration from `.env.local` file
-   - Validates that `.env.local` exists (exits with error if missing)
+   - Loads configuration from `.env` file
+   - Validates that `.env` exists (exits with error if missing)
    - Makes all environment variables available to Terraform
 
 3. **Kubernetes Namespace Creation**
@@ -603,7 +598,7 @@ The main automation script that orchestrates the entire Terraform deployment pro
 
 7. **Terraform Apply with Image Versions**
    - Passes environment variables as Terraform input variables
-   - Includes all image version variables from `.env.local`
+   - Includes all image version variables from `.env`
    - Uses `-auto-approve` flag to skip manual confirmation
    - Logs output to `terraform.log` file
    - Validates success/failure and provides appropriate error messages
@@ -613,11 +608,11 @@ The main automation script that orchestrates the entire Terraform deployment pro
 ```
 conf/images.csv (source of truth)
         ↓
-.env.local (copied and maintained by user)
+.env (copied and maintained by user)
         ↓
-04_pullimages.sh (pre-pulls images from registry)
+kubeterra.sh images pull (pre-pulls images from registry)
         ↓
-05_terraform.sh (passes to terraform apply)
+kubeterra.sh deploy (passes to terraform apply)
         Image Version Management (conf/images.csv Integration)
 
 #### Understanding Image Version Workflow
@@ -637,7 +632,7 @@ smart-chat-indexing-proxy:1.2.2
 
 #### Variables in Different Files
 
-**Environment Variables (.env.local/.env.example):**
+**Environment Variables (.env/.env.example):**
 ```bash
 MOBIUS_SERVER_IMAGE=12.5.2
 MOBIUS_VIEW_IMAGE=12.5.2
@@ -667,7 +662,7 @@ variable "var_smart_chat_image" {
 }
 ```
 
-#### How 05_terraform.sh Uses Image Versions
+#### How kubeterra.sh deploy Uses Image Versions
 
 The script passes image versions to Terraform:
 
@@ -693,22 +688,22 @@ terraform apply \
    # mobius-server:12.6.0
    ```
 
-2. **Update .env.local:**
+2. **Update .env:**
    ```bash
-   # Make sure .env.local matches
+   # Make sure .env matches
    MOBIUS_SERVER_IMAGE=12.6.0
    ```
 
 3. **Pre-pull new images:**
    ```bash
-   ./04_pullimages.sh
+   ./kubeterra.sh images pull
    # Reads from images.csv and pulls the images
    ```
 
 4. **Deploy with new versions:**
    ```bash
-   ./05_terraform.sh
-   # Passes MOBIUS_SERVER_IMAGE from .env.local to Terraform
+   ./kubeterra.sh deploy
+   # Passes MOBIUS_SERVER_IMAGE from .env to Terraform
    # Terraform creates deployments with image:12.6.0
    ```
 
@@ -726,8 +721,8 @@ kubectl get deployment mobius-server -n mobius -o jsonpath='{.spec.template.spec
 #### Best Practices
 
 1. **Keep conf/images.csv as source of truth** - All other versions should match it
-2. **Update .env.local before deployment** - Ensure image versions are synchronized
-3. **Run 04_pullimages.sh before 05_terraform.sh** - Pre-pull images for faster deployment
+2. **Update .env before deployment** - Ensure image versions are synchronized
+3. **Run kubeterra.sh images pull before kubeterra.sh deploy** - Pre-pull images for faster deployment
 4. **Verify images in registry** - Before deploying, ensure images exist in your registry
 5. **Test in non-production first** - Validate new versions before production deployment
 
@@ -741,24 +736,24 @@ Kubernetes Deployments (actual image versions used)
 
 #### Usage:
 ```bash
-./05_terraform.sh
+./kubeterra.sh deploy
 ```
 
 #### Prerequisites:
-- `.env.local` file must exist and be configured
+- `.env` file must exist and be configured
 - Kubernetes cluster must be accessible
 - `kubectl` and `helm` must be installed
 - Terraform must be installed
 
-### 4.5 .env.local and .env.example Configuration Files
+### 4.5 .env and .env.example Configuration Files
 
-#### `.env.local` - Your Deployment Configuration
+#### `.env` - Your Deployment Configuration
 
 **Purpose:** Contains all environment variables required for **your specific deployment**.
 
 **Image Version Synchronization:**
 
-The `.env.local` file now includes image version variables that should match `conf/images.csv`:
+The `.env` file now includes image version variables that should match `conf/images.csv`:
 
 ```bash
 # From conf/images.csv
@@ -772,33 +767,33 @@ DOCKER_REGISTRY=localhost:5000
 ```
 
 These variables are used by:
-- **`04_pullimages.sh`** - Pre-pulls container images from the registry
-- **`05_terraform.sh`** - Passes image versions to Terraform during deployment
+- **`kubeterra.sh images pull`** - Pre-pulls container images from the registry
+- **`kubeterra.sh deploy`** - Passes image versions to Terraform during deployment
 - **Terraform modules** - Uses image versions in Helm chart values and deployments
 
 **Workflow for Image Updates:**
 
 1. Update `conf/images.csv` with new image versions
-2. Update `.env.local` with matching versions:
+2. Update `.env` with matching versions:
    ```bash
-   # Edit .env.local to match images.csv
+   # Edit .env to match images.csv
    MOBIUS_SERVER_IMAGE=<new_version>
    EVENT_ANALYTICS_IMAGE=<new_version>
    # etc.
    ```
 3. Pre-pull images:
    ```bash
-   ./04_pullimages.sh
+   ./kubeterra.sh images pull
    ```
 4. Deploy with matching versions:
    ```bash
-   ./05_terraform.sh
+   ./kubeterra.sh deploy
    ```
 
 **Creation:**
 ```bash
-cp .env.example .env.local
-# Edit .env.local with your actual values
+cp .env.example .env
+# Edit .env with your actual values
 ```
 
 **Required Variables:**
@@ -814,14 +809,14 @@ cp .env.example .env.local
 
 #### Image Version Synchronization
 
-The `.env.local` file includes image version variables from `conf/images.csv`. When creating `.env.local`, you should:
+The `.env` file includes image version variables from `conf/images.csv`. When creating `.env`, you should:
 
 1. Ensure image versions match `conf/images.csv`
 2. Keep all image version variables in sync across:
    - `conf/images.csv` (source of truth)
-   - `.env.local` (used by scripts and Terraform)
-   - `04_pullimages.sh` (reads images.csv)
-   - `05_terraform.sh` (passes to Terraform)
+   - `.env` (used by scripts and Terraform)
+   - `kubeterra.sh images pull` (reads images.csv)
+   - `kubeterra.sh deploy` (passes to Terraform)
 
 **Example:**
 ```bash
@@ -830,7 +825,7 @@ The `.env.local` file includes image version variables from `conf/images.csv`. W
 # mobius-server:12.5.2
 # mobius-view:12.5.2
 
-# Should match in .env.local:
+# Should match in .env:
 EVENT_ANALYTICS_IMAGE=2.0.9
 MOBIUS_SERVER_IMAGE=12.5.2
 MOBIUS_VIEW_IMAGE=12.5.2
@@ -868,24 +863,28 @@ MOBIUS_VIEW_IMAGE=12.5.2
 
 #### Understanding Image Version Workflow
 
-The image versions are **centrally managed in `conf/images.csv`** as the single source of truth. A synchronization script (`sync_image_versions.sh`) automatically updates `.env.local` and `.env.example` to match.
+The image versions are **centrally managed in `conf/images.csv`** as the single source of truth. A synchronization script (`sync_image_versions.sh`) automatically updates `.env` and `.env.example` to match.
 
 **conf/images.csv Format:**
 ```csv
 #image:version
-eventanalytics:2.0.9
-mobius-server:12.5.2
-mobius-view:12.5.2
-smart-chat:1.2.8
+eventanalytics:2.0.18
+mobius-server:12.6.1
+mobius-view:12.6.1
+smart-chat:1.4.5
 smart-chat-query-logs:1.2.2
-smart-chat-indexing-proxy:1.2.2
+smart-chat-indexing-proxy:1.4.3
+smart-chat-admin:1.1.5
+appmanager:12.6.1
+studio:12.6.1
+processengine:12.6.1
 ```
 
 #### Automatic Synchronization
 
 **lib/sync_image_versions.sh** automatically:
 1. Reads image versions from `conf/images.csv`
-2. Updates `MOBIUS_SERVER_IMAGE`, `EVENT_ANALYTICS_IMAGE`, etc. in `.env.local`
+2. Updates `MOBIUS_SERVER_IMAGE`, `EVENT_ANALYTICS_IMAGE`, etc. in `.env`
 3. Updates the same variables in `.env.example`
 4. Reports all changes
 
@@ -894,8 +893,8 @@ smart-chat-indexing-proxy:1.2.2
 # Manual synchronization
 ./lib/sync_image_versions.sh
 
-# Automatic (runs automatically when you execute 05_terraform.sh)
-./05_terraform.sh
+# Automatic (runs automatically when you execute kubeterra.sh deploy)
+./kubeterra.sh deploy
 ```
 
 #### Simplified Update Workflow
@@ -912,10 +911,10 @@ smart-chat-indexing-proxy:1.2.2
 
 2. **Deploy (synchronization happens automatically):**
    ```bash
-   ./05_terraform.sh
+   ./kubeterra.sh deploy
    # This automatically:
    # - Runs sync_image_versions.sh
-   # - Updates .env.local with new versions
+   # - Updates .env with new versions
    # - Loads updated variables
    # - Deploys with new versions
    ```
@@ -929,15 +928,15 @@ vim conf/images.csv
 ./lib/sync_image_versions.sh
 
 # 3. Pre-pull images (optional but recommended)
-./04_pullimages.sh
+./kubeterra.sh images pull
 
 # 4. Deploy
-./05_terraform.sh
+./kubeterra.sh deploy
 ```
 
 #### Variables in Different Files
 
-**Environment Variables (.env.local/.env.example):**
+**Environment Variables (.env/.env.example):**
 ```bash
 MOBIUS_SERVER_IMAGE=12.5.2
 MOBIUS_VIEW_IMAGE=12.5.2
@@ -967,7 +966,7 @@ variable "var_smart_chat_image" {
 }
 ```
 
-#### How 05_terraform.sh Uses Image Versions
+#### How kubeterra.sh deploy Uses Image Versions
 
 The script passes image versions to Terraform:
 
@@ -993,22 +992,22 @@ terraform apply \
    # mobius-server:12.6.0
    ```
 
-2. **Update .env.local:**
+2. **Update .env:**
    ```bash
-   # Make sure .env.local matches
+   # Make sure .env matches
    MOBIUS_SERVER_IMAGE=12.6.0
    ```
 
 3. **Pre-pull new images:**
    ```bash
-   ./04_pullimages.sh
+   ./kubeterra.sh images pull
    # Reads from images.csv and pulls the images
    ```
 
 4. **Deploy with new versions:**
    ```bash
-   ./05_terraform.sh
-   # Passes MOBIUS_SERVER_IMAGE from .env.local to Terraform
+   ./kubeterra.sh deploy
+   # Passes MOBIUS_SERVER_IMAGE from .env to Terraform
    # Terraform creates deployments with image:12.6.0
    ```
 
@@ -1026,51 +1025,51 @@ kubectl get deployment mobius-server -n mobius -o jsonpath='{.spec.template.spec
 #### Best Practices
 
 1. **Keep conf/images.csv as source of truth** - All other versions should match it
-2. **Update .env.local before deployment** - Ensure image versions are synchronized
-3. **Run 04_pullimages.sh before 05_terraform.sh** - Pre-pull images for faster deployment
+2. **Update .env before deployment** - Ensure image versions are synchronized
+3. **Run kubeterra.sh images pull before kubeterra.sh deploy** - Pre-pull images for faster deployment
 4. **Verify images in registry** - Before deploying, ensure images exist in your registry
 5. **Test in non-production first** - Validate new versions before production deployment
 
-### 4.6 .env.local and .env.example Configuration Files
+### 4.6 .env and .env.example Configuration Files
 
 **Purpose:** Template file showing all available configuration options with example values.
 
 **Image Version Synchronization:**
 
-The `.env.example` file includes image version variables from `conf/images.csv`. When creating `.env.local`, ensure image versions are synchronized.
+The `.env.example` file includes image version variables from `conf/images.csv`. When creating `.env`, ensure image versions are synchronized.
 
 **Usage:**
-1. Copy to `.env.local`
+1. Copy to `.env`
 2. Edit with your actual values
 3. Never modify `.env.example` for your deployment
 4. Keep image versions synchronized with `conf/images.csv`**
-- **NEVER commit `.env.local` to version control** (add to `.gitignore`)
-- **NEVER share `.env.local` publicly** (contains sensitive credentials)
-- Keep `.env.local` file with restricted permissions: `chmod 600 .env.local`
+- **NEVER commit `.env` to version control** (add to `.gitignore`)
+- **NEVER share `.env` publicly** (contains sensitive credentials)
+- Keep `.env` file with restricted permissions: `chmod 600 .env`
 - Use a secrets management system in production environments
-- Consider using separate `.env.local` files for different environments (dev, staging, prod)
+- Consider using separate `.env` files for different environments (dev, staging, prod)
 
 #### Configuration Workflow:
 
 1. Copy template file:
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
 
 2. Edit with your configuration:
    ```bash
-   nano .env.local  # or your preferred editor
+   nano .env  # or your preferred editor
    ```
 
 3. Verify configuration is complete:
    ```bash
-   source .env.local
+   source .env
    echo $DOCKER_USERNAME  # Should display your username
    ```
 
 4. Run deployment script:
    ```bash
-   ./05_terraform.sh
+   ./kubeterra.sh deploy
    ```
 
 ### 4.6 Integration Flow Diagram
@@ -1082,14 +1081,14 @@ The `.env.example` file includes image version variables from `conf/images.csv`.
            │ (copy and configure)
            ▼
 ┌─────────────────────┐
-│   .env.local        │ (your configuration with secrets)
+│   .env        │ (your configuration with secrets)
 └──────────┬──────────┘
            │ (source)
            ▼
 ┌──────────────────────────────────────┐
-│     05_terraform.sh                  │
+│     kubeterra.sh deploy                  │
 │ ┌──────────────────────────────────┐ │
-│ │ 1. Load .env.local variables     │ │
+│ │ 1. Load .env variables     │ │
 │ │ 2. Create Kubernetes namespace   │ │
 │ │ 3. Setup Helm repositories       │ │
 │ │ 4. Initialize Terraform          │ │
@@ -1127,10 +1126,10 @@ The `.env.example` file includes image version variables from `conf/images.csv`.
 #### Deployment Script Files
 | File | Purpose |
 |------|---------|
-| `05_terraform.sh` | Main orchestration script for Terraform deployment |
+| `kubeterra.sh deploy` | Main orchestration script for Terraform deployment |
 | `lib/sync_image_versions.sh` | Synchronizes image versions from conf/images.csv to .env files |
 | `.env.example` | Template for environment configuration |
-| `.env.local` | User configuration with sensitive credentials (not in version control) |
+| `.env` | User configuration with sensitive credentials (not in version control) |
 
 #### Configuration Files
 | File | Purpose | Location |
@@ -1197,12 +1196,12 @@ The `.env.example` file includes image version variables from `conf/images.csv`.
 #### Installation Scripts
 | File | Purpose |
 |------|---------|
-| `00_install_wsl.cmd` | Windows WSL installation script |
-| `01_install_docker.sh` | Docker installation script |
-| `02_install_helm_kubectl.sh` | Helm and kubectl installation |
-| `03_install_rancher_terraform.sh` | Rancher and(reads from conf/images.csv) |
+| `kubeterra.sh prereqs` | Windows WSL installation script |
+| `kubeterra.sh prereqs` | Docker installation script |
+| `kubeterra.sh prereqs` | Helm and kubectl installation |
+| `kubeterra.sh cluster` | Rancher and(reads from conf/images.csv) |
 | `sync_image_versions.sh` | Synchronize image versions from conf/images.csv to .env files  Terraform installation |
-| `04_pullimages.sh` | Pre-pull container images |
+| `kubeterra.sh images pull` | Pre-pull container images |
 
 #### Configuration and Documentation
 | File | Purpose |
@@ -1249,12 +1248,12 @@ outputs.tf (exposes deployment information)
 
 #### Error: "Required environment variable not set"
 
-**Cause:** One of the required variables is missing from `.env.local`
+**Cause:** One of the required variables is missing from `.env`
 
 **Solution:**
 ```bash
 # Load environment variables
-source .env.local
+source .env
 
 # Verify that each variable is set
 echo "Docker User: $DOCKER_USERNAME"
@@ -1273,7 +1272,7 @@ echo "PVC Storage Capacity: $PVC_STORAGE_CAPACITY"
 ```bash
 # Verify DATABASE_PORT is a number between 1-65535
 echo $DATABASE_PORT
-# Edit .env.local if needed
+# Edit .env if needed
 ```
 
 #### Error: "Namespace must be lowercase"
@@ -1282,7 +1281,7 @@ echo $DATABASE_PORT
 
 **Solution:**
 ```bash
-# Edit .env.local
+# Edit .env
 # Change: NAMESPACE=Mobius
 # To: NAMESPACE=mobius
 ```
@@ -1301,20 +1300,20 @@ cd terra/kube
 terraform refresh
 ```
 
-#### Error: ".env.local not found"
+#### Error: ".env not found"
 
 **Cause:** File doesn't exist
 
 **Solution:**
 ```bash
 # Create from template
-cp .env.example .env.local
+cp .env.example .env
 
 # Edit with your values
-vim .env.local
+vim .env
 
 # Verify it was created
-ls -la .env.local
+ls -la .env
 ```
 
 ### 6.2 Debugging Techniques
@@ -1363,7 +1362,7 @@ terraform state show kubernetes_namespace.mobius
 
 ```bash
 # Test variable precedence
-source .env.local
+source .env
 
 # Check environment variable
 echo $TF_VAR_var_namespace
@@ -1471,13 +1470,13 @@ Inside the KubeTerra project:
 - Use named plans: `terraform plan -out=tfplan`
 
 #### Deployment
-- Use `.env.local` for sensitive data
+- Use `.env` for sensitive data
 - Keep backups of `terraform.tfstate`
 - Use version control for all `.tf` files
 - Document any manual changes
 
 #### Security
-- Never commit `.env.local` to git
+- Never commit `.env` to git
 - Use `sensitive = true` for passwords
 - Rotate credentials regularly
 - Use secret management systems in production
@@ -1518,3 +1517,4 @@ This documentation provides a complete guide to deploying and managing the KubeT
 
 *Last Updated: December 30, 2025*  
 *KubeTerra Documentation Version 1.0*
+

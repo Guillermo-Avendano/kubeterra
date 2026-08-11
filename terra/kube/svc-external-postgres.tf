@@ -57,4 +57,56 @@ resource "postgresql_database" "postgres_schema_eventanalytics" {
   connection_limit = -1
 }
 
+resource "postgresql_database" "postgres_schema_appmanager" {
+
+  count = var.var_deploy_postgresql == false && var.var_deploy_appmanager && var.var_create_database_schema_required && lower(var.var_database_provider) == "postgresql" ? 1 : 0
+
+  name             = var.var_database_appmanager_schema
+  owner            = "postgres"
+  encoding         = "UTF8"
+  lc_collate       = "C"
+  lc_ctype         = "C"
+  template         = "template0"
+  connection_limit = -1
+}
+
+resource "postgresql_database" "postgres_schema_studio" {
+
+  count = var.var_deploy_postgresql == false && var.var_deploy_studio && var.var_create_database_schema_required && lower(var.var_database_provider) == "postgresql" ? 1 : 0
+
+  name             = var.var_database_studio_schema
+  owner            = "postgres"
+  encoding         = "UTF8"
+  lc_collate       = "C"
+  lc_ctype         = "C"
+  template         = "template0"
+  connection_limit = -1
+}
+
+resource "postgresql_database" "postgres_schema_processengine_flowable" {
+
+  count = var.var_deploy_postgresql == false && var.var_deploy_processengine && var.var_create_database_schema_required && lower(var.var_database_provider) == "postgresql" ? 1 : 0
+
+  name             = var.var_database_processengine_flowable_schema
+  owner            = "postgres"
+  encoding         = "UTF8"
+  lc_collate       = "C"
+  lc_ctype         = "C"
+  template         = "template0"
+  connection_limit = -1
+}
+
+resource "postgresql_database" "postgres_schema_processengine_root" {
+
+  count = var.var_deploy_postgresql == false && var.var_deploy_processengine && var.var_create_database_schema_required && lower(var.var_database_provider) == "postgresql" ? 1 : 0
+
+  name             = var.var_database_processengine_root_schema
+  owner            = "postgres"
+  encoding         = "UTF8"
+  lc_collate       = "C"
+  lc_ctype         = "C"
+  template         = "template0"
+  connection_limit = -1
+}
+
 

@@ -121,14 +121,14 @@ replace_tag_in_file() {
 }
 
 # Function to detect the operating system
-# Sets global variable OS to: debian, rhel, centos, darwin, or UNKNOWN
+# Sets global variable OS to: ubuntu, debian, rhel, centos, rocky, fedora, darwin, or UNKNOWN
 detect_os() {
     local os_id
     os_id=$(awk -F'=' '/^ID=/ { gsub("\"","",$2); print tolower($2) }' /etc/*-release 2>/dev/null || echo "")
 
     case "$os_id" in
+        *ubuntu*)    OS="ubuntu"  ;;
         *debian*)    OS="debian"  ;;
-        *ubuntu*)    OS="debian"  ;;
         *rhel*)      OS="rhel"    ;;
         *centos*)    OS="centos"  ;;
         *rocky*)     OS="rocky"   ;;

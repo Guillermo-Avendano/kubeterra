@@ -2,9 +2,9 @@
 
 source "$CORE_SCRIPTS_DIR/common.sh"
 
-# Load environment variables if .env.local exists
-if [ -f "$CORE_DIR/.env.local" ]; then
-    source "$CORE_DIR/.env.local"
+# Load environment variables from .env
+if [ -f "$CORE_DIR/.env" ]; then
+    source "$CORE_DIR/.env"
 fi
 
 # Set defaults
@@ -71,7 +71,7 @@ EOF
         fi
     
     # Check for 'service' command (for older systems)
-    elif command-v service &> /dev/null; then
+    elif command -v service &> /dev/null; then
         if sudo service "$DOCKER_SERVICE" restart; then
             echo "✅ $DOCKER_SERVICE service restarted successfully."
         else

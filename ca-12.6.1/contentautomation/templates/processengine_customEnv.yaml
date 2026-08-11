@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: processengine-custom-env
+  namespace: <NAMESPACE>
+data:
+  ASG_IAM_LDAP_ENABLED: "<ASG_IAM_LDAP_ENABLED>"
+  ASG_IAM_LDAP_SERVER: "" #LDAP Server ip
+  ASG_IAM_LDAP_PORT: "" #LDAP server port
+  ASG_IAM_LDAP_USER: "" #LDAP user name
+  LDAP_SECRET_PASSWORD: ""
+  ASG_IAM_LDAP_PASSWORD: #LDAP User Password (without quotes)
+  ASG_IAM_LDAP_GROUPDN: "" #LDAP group DN
+  ASG_IAM_LDAP_USERDN: "" #LDAP user DN
+  ASG_IAM_LDAP_USERATTRIBUTES: "cn,memberof,proxyAddresses,textEncodedORAddress,mail"
+  ASG_IAM_LDAP_SEARCHTYPE: "CONTAINS"

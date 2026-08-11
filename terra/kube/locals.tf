@@ -27,6 +27,9 @@ locals {
     mobius_server        = var.var_mobiusserver_docker_artifactory_url
     mobius_view          = var.var_mobiusview_docker_artifactory_url
     event_analytics      = var.var_eventanalytics_docker_artifactory_url
+    appmanager           = var.var_appmanager_docker_artifactory_url
+    studio               = var.var_studio_docker_artifactory_url
+    processengine        = var.var_processengine_docker_artifactory_url
     smart_chat           = var.var_smart_chat_docker_artifactory_url
     smart_chat_indexing  = var.var_smart_chat_indexing_proxy_docker_artifactory_url
     smart_chat_query_logs = var.var_smart_chat_query_logs_docker_artifactory_url
@@ -39,6 +42,9 @@ locals {
     mobius_server        = var.var_mobiusserver_image
     mobius_view          = var.var_mobiusview_image
     event_analytics      = var.var_eventanalytics_image
+    appmanager           = var.var_appmanager_image
+    studio               = var.var_studio_image
+    processengine        = var.var_processengine_image
     smart_chat           = var.var_smart_chat_image
     smart_chat_indexing  = var.var_smart_chat_indexing_proxy_image
     smart_chat_query_logs = var.var_smart_chat_query_logs_image
@@ -51,6 +57,9 @@ locals {
     mobius_server             = var.var_mobiusserver_chart_file
     mobius_view               = var.var_mobiusview_chart_file
     event_analytics           = var.var_eventanalytics_chart_file
+    appmanager                = var.var_appmanager_chart_file
+    studio                    = var.var_studio_chart_file
+    processengine             = var.var_processengine_chart_file
     smart_chat                = var.var_smart_chat_chart_file
     smart_chat_indexing_proxy = var.var_smart_chat_indexing_proxy_chart_file
   }
@@ -74,6 +83,10 @@ locals {
     mobius_server   = var.var_database_mobiusserver_schema
     mobius_view     = var.var_database_mobiusview_schema
     event_analytics = var.var_database_eventanalytics_schema
+    appmanager      = var.var_database_appmanager_schema
+    studio          = var.var_database_studio_schema
+    processengine_flowable = var.var_database_processengine_flowable_schema
+    processengine_root     = var.var_database_processengine_root_schema
   }
 
   # ======================================================
@@ -117,6 +130,9 @@ locals {
   replicas = {
     mobius_server = var.var_mobius_server_replica
     mobius_view   = var.var_mobius_view_replica
+    appmanager    = var.var_appmanager_replica
+    studio        = var.var_studio_replica
+    processengine = var.var_processengine_replica
   }
 
   # ======================================================
@@ -126,6 +142,10 @@ locals {
     deploy_mobiusserver   = var.var_deploy_mobiusserver
     deploy_mobiusview     = var.var_deploy_mobiusview
     deploy_eventanalytics = var.var_deploy_eventanalytics
+    deploy_appmanager     = var.var_deploy_appmanager
+    deploy_studio         = var.var_deploy_studio
+    deploy_processengine  = var.var_deploy_processengine
+    deploy_nginx          = var.var_deploy_nginx
     deploy_opensearch     = var.var_deploy_opensearch
     deploy_smart_chat     = var.var_deploy_smart_chat
     deploy_elasticsearch  = var.var_deploy_elasticsearch
@@ -145,7 +165,10 @@ locals {
   # SERVICE ACCOUNTS
   # ======================================================
   service_accounts = {
-    mobius = var.var_mobius_service_account
+    mobius        = var.var_mobius_service_account
+    appmanager    = var.var_appmanager_service_account
+    studio        = var.var_studio_service_account
+    processengine = var.var_processengine_service_account
   }
 
   # ======================================================
@@ -158,5 +181,8 @@ locals {
     mobius_view                 = var.var_mobius_view_pvc_name
     mobius_view_diag            = var.var_mobius_view_diag_pvc_name
     mobius_view_presentation    = var.var_mobius_view_presentation_pvc_name
+    appmanager                  = var.var_appmanager_pvc_name
+    studio                      = var.var_studio_pvc_name
+    processengine               = var.var_processengine_pvc_name
   }
 }

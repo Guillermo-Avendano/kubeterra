@@ -120,3 +120,69 @@ resource "kubernetes_persistent_volume_claim" "mobiusview_presentation_pvc" {
     }
   }
 }
+
+# Create PVC for AppManager
+resource "kubernetes_persistent_volume_claim" "appmanager_pvc" {
+
+  count = (var.var_deploy_appmanager && local.var_appmanager_pvc_enabled) == true ? 1 : 0
+
+  metadata {
+    name      = var.var_appmanager_pvc_name
+    namespace = var.var_namespace_mobius
+    labels    = var.common_labels
+  }
+
+  spec {
+    access_modes       = ["ReadWriteMany"]
+    storage_class_name = var.var_pvc_storage_class
+    resources {
+      requests = {
+        storage = var.var_pvc_storage_capacity
+      }
+    }
+  }
+}
+
+# Create PVC for Studio
+resource "kubernetes_persistent_volume_claim" "studio_pvc" {
+
+  count = (var.var_deploy_studio && local.var_studio_pvc_enabled) == true ? 1 : 0
+
+  metadata {
+    name      = var.var_studio_pvc_name
+    namespace = var.var_namespace_mobius
+    labels    = var.common_labels
+  }
+
+  spec {
+    access_modes       = ["ReadWriteMany"]
+    storage_class_name = var.var_pvc_storage_class
+    resources {
+      requests = {
+        storage = var.var_pvc_storage_capacity
+      }
+    }
+  }
+}
+
+# Create PVC for ProcessEngine
+resource "kubernetes_persistent_volume_claim" "processengine_pvc" {
+
+  count = (var.var_deploy_processengine && local.var_processengine_pvc_enabled) == true ? 1 : 0
+
+  metadata {
+    name      = var.var_processengine_pvc_name
+    namespace = var.var_namespace_mobius
+    labels    = var.common_labels
+  }
+
+  spec {
+    access_modes       = ["ReadWriteMany"]
+    storage_class_name = var.var_pvc_storage_class
+    resources {
+      requests = {
+        storage = var.var_pvc_storage_capacity
+      }
+    }
+  }
+}

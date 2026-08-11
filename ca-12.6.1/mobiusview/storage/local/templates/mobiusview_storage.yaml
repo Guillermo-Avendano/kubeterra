@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mobiusview-presentation-storage
+  labels:
+    type: mobiusview-presentation-storage
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "<MOBIUSVIEW_PV_VOLUME>"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mobiusview-presentation-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1000M
+  selector: 
+    matchLabels: 
+      type: mobiusview-presentation-storage    
+---      
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mobiusview-diagnostic-pv-storage
+  labels:
+    type: mobiusview-diagnostic-pv-storage
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "<MOBIUSVIEW_DIAGNOSTIC_VOLUME>"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mobiusview-diagnostic-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1000M
+  selector: 
+    matchLabels: 
+      type: mobiusview-diagnostic-pv-storage    
+ 

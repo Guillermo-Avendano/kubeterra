@@ -1,0 +1,98 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: ${replicaCount}
+namespace: ${namespace}
+image:
+  repository: ${image.repository}
+  tag: ${image.tag}
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  name: ${image.pullSecret}
+
+spring:
+  datasource:
+    flowable:
+      url: "${spring.datasource.flowable.url}"
+      username: "${spring.datasource.flowable.username}"
+      password: "${spring.datasource.flowable.password}"
+    root:
+      url: "${spring.datasource.root.url}"
+      username: "${spring.datasource.root.username}"
+      password: "${spring.datasource.root.password}"
+
+cloud:
+  discovery:
+    client:
+      simple:
+        instances:
+          iam:
+            - uri: http://${services.mobiusview}:80/mobius
+
+additionalVolumeMounts:
+  - name: ${persistence.mountName}
+    mountPath: ${persistence.storagePath}
+  - name: ${persistence.mountName}
+    mountPath: ${persistence.targetPath}
+  - name: ${persistence.mountName}
+    mountPath: /home/asg/customFolder
+
+additionalVolumes:
+  - name: ${persistence.mountName}
+    persistentVolumeClaim:
+      claimName: ${persistence.claimName}
+
+flowable:
+  mail:
+    server:
+      host: ${flowable.mail.host}
+      defaultFrom: ${flowable.mail.defaultFrom}
+      username: ${flowable.mail.username}
+      password: ${flowable.mail.password}
+
+asg:
+  processengine:
+    studioServiceUrl: http://${services.studio}:8082/studio
+    contentautomationServiceUrl: http://${services.appmanager}:8521/appmanager
+    authorizationServiceHost: http://${services.appmanager}:8521/appmanager/rest/authorization
+    mobiusResourcesUrl: http://${services.mobiusview}:80/mobius/rest/resources
+    directoryServiceHost: http://${services.mobiusview}:80/mobius/rest/iam
+    agent:
+      enabled: ${asg.processengine.agent.enabled}
+      llm:
+        openai:
+          api_key: "${asg.processengine.agent.openaiApiKey}"
+          generation_config:
+            model: "gpt-4o-mini"
+            temperature: 0.7
+      mcpservers:
+        - name: ${asg.processengine.agent.mcpServerName}
+          transport: "STREAMABLE_HTTP"
+          timeout: 30000
+          streamableHttp:
+            baseUrl: ${asg.processengine.agent.mcpServerUrl}
+            toolsPath: ${asg.processengine.agent.mcpServerPath}
+            auth:
+              type: "NONE"
+  security:
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+        groupNames:
+        groupSeparator:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: "${asg.security.jwt.privateKey}"
+          publicKey: "${asg.security.jwt.publicKey}"
+          expireSeconds: 36000
+
+  iam:
+    ldap:
+      enabled: ${asg.iam.ldap.enabled}

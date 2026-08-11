@@ -19,7 +19,7 @@ resource "helm_release" "mobiusview" {
   ]
 
   name            = "mobiusview"
-  chart           = "${path.root}/../charts/${var.var_mobiusview_chart_file}"
+  chart           = "${path.root}/../helm_charts/${var.var_mobiusview_chart_file}"
   namespace       = var.var_namespace_mobius
   wait            = true
 #  atomic          = true

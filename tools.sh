@@ -27,7 +27,7 @@ check_nfs(){
     
   log INFO "✅ NFS Packages installed."
   
-  if [ "$OS" = "debian" ]; then
+  if [ "$OS" = "debian" ] || [ "$OS" = "ubuntu" ]; then
       dpkg -l | grep nfs-common
       dpkg -l | grep nfs-kernel-server
   elif [ "$OS" = "rhel" ] || [ "$OS" = "centos" ] || [ "$OS" = "rocky" ] || [ "$OS" = "fedora" ]; then

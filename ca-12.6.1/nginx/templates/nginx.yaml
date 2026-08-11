@@ -1,0 +1,14 @@
+controller:
+  name: controller
+  image:
+    registry: registry.k8s.io
+    image: ingress-nginx/controller
+    tag: "<NGINX_VERSION>"
+    
+  # -- Additional command line arguments to pass to nginx-ingress-controller
+  # E.g. to specify the default SSL certificate you can use
+  extraArgs:
+    default-ssl-certificate: "<NAMESPACE>/nginx-cert"
+  #Uncomment if k3d portforwaring doesn't work. Make NGINX a nodeport service and enable portforwaring in install_nginx #script.
+  #service:
+  #  type: "NodePort"

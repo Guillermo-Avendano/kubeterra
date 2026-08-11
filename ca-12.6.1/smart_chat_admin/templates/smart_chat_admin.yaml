@@ -1,0 +1,57 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_SMART_CHAT_ADMIN>
+  pullPolicy: IfNotPresent
+  tag: <IMAGE_VERSION_SMART_CHAT_ADMIN>
+env:
+  LOG_LEVEL: "INFO"
+  OPENSEARCH_HOST: "node-0.example.com"
+  OPENSEARCH_PORT: "9200"
+  OPENSEARCH_AWS_ENABLED: "false"
+  OPENSEARCH_SERVER_SSL_ENABLED: "true"
+  OPENSEARCH_CLIENT_SSL_ENABLED: "false"
+  OPENSEARCH_USERNAME: "admin"
+  OPENSEARCH_PASSWORD: "Rocket@123#!_"
+
+hostAliases:
+  - ip: <OPENSEARCH_SERVICE_IP>
+    hostnames:
+      - node-0.example.com
+
+volumes:
+  logdir:
+    name: logdir
+  smart_chat_admin_certs:
+    name: smart-chat-admin-certs
+    secret:
+      defaultMode: 420
+      secretName: smart-chat--admin-certs
+
+volumeMounts:
+  smart_chat_certs:
+    mountPath: /app/certs
+    ca_bundle_cert: root-ca.pem
+    client_cert: client.pem
+    client_key: client-key.pem
+  smart_chat_admin_certs:
+    mountPath: /app/certs
+    ca_bundle_cert: root-ca.pem
+    client_cert: client.pem
+    client_key: client-key.pem
+  smart_chat_admin_logs:
+    mountPath: /app/logs
+
+# Admin users (role: admin, require password change on first login)
+adminUsers:
+  <ADMIN_USERS_LIST>
+
+# Regular users (role: user, require password change on first login)
+regularUsers:
+  <REGULAR_USERS_LIST>

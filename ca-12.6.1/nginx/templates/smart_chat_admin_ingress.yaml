@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smart-chat-admin-ingress
+  namespace: <NAMESPACE>
+            
+spec:
+  ingressClassName: nginx
+  rules: 
+  - host: <HOSTNAME>
+    http:
+      paths:
+      - backend:
+          service:
+            name: smart-chat-admin
+            port:
+              number: 80
+        path: /smartchatadmin 
+        pathType: Prefix
+  tls:
+    - hosts:
+      - <HOSTNAME>
+      secretName: nginx-cert

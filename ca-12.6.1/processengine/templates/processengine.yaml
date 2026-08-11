@@ -1,0 +1,122 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_PROCESSENGINE>
+  tag: <IMAGE_VERSION_PROCESSENGINE>
+  pullPolicy: IfNotPresent
+
+spring:
+  datasource:
+    flowable:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_PROCESSENGINE_FLOWABLE>"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+    root:
+      url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_PROCESSENGINE_ROOT>"
+      username: "<POSTGRESQL_USERNAME>"
+      password: "<POSTGRESQL_PASSWORD>"
+
+cloud:
+  discovery:
+    client:
+      simple:
+        instances:
+          iam:
+            - uri: http://mobiusview:80/mobius
+
+additionalVolumeMounts:
+  - name: <PROCESSENGINE_MOUNT_NAME>
+    mountPath: <PROCESSENGINE_STORAGE_PATH>
+  - name: <PROCESSENGINE_MOUNT_NAME>
+    mountPath: <PROCESSENGINE_TARGET_PATH>
+  - name: <PROCESSENGINE_MOUNT_NAME>
+    mountPath: /home/asg/customFolder
+additionalVolumes:
+  - name: <PROCESSENGINE_MOUNT_NAME>
+    persistentVolumeClaim:
+      claimName: process-pv-claim
+
+flowable:
+  mail:
+    server:
+      host: <PROCESS_MAIL_HOST>
+      defaultFrom: <PROCESS_MAIL_FROM_EMAIL_ID>
+      username: <PROCESS_MAIL_SERVER_USERNAME>
+      password: <PROCESS_MAIL_SERVER_PASSWORD>
+
+asg:
+  iam:
+    ldap:
+      # If value for the below "ldapSecretName" is specified, "password" will be fetched from the corresponding secret keys.
+      # Uncomment the below 'ldapSecretName' and provide value for fetching corresponding secret keys.
+      #ldapSecretName:
+      enabled: <PROCESSENGINE_LDAP_ENABLED>
+      server: <ASG_IAM_LDAP_SERVER>
+      port: <ASG_IAM_LDAP_PORT>
+      user: "<ASG_IAM_LDAP_USER>"
+      #Key for fetching password value from the secret
+      ldapPasswordSecretValue: <LDAP_SECRET_PASSWORD>
+      password: <ASG_IAM_LDAP_PASSWORD>
+      groupDN: "<ASG_IAM_LDAP_GROUPDN>"
+      userDN: "<ASG_IAM_LDAP_USERDN>"
+      userAttributes: "<ASG_IAM_LDAP_USERATTRIBUTES>"
+      searchType: "<ASG_IAM_LDAP_SEARCHTYPE>"
+  processengine:
+    awsAccessKey: <AWS_ACCESS_KEY>
+    awsSecretKey: <AWS_SECRET_KEY>
+    awsRegion: <AWS_REGION>
+    awsS3BucketInput: <AWS_S3_BUCKET_INPUT>
+    awsS3BucketOutput: <AWS_S3_BUCKET_OUTPUT>
+    awsSqsArn: <AWS_SQS_ARN>
+    awsSqsRole: <AWS_SQS_ROLE>
+    awsComprehendRole: <AWS_COMPREHEND_ROLE>
+    studioServiceUrl: http://studio:8082/studio
+    contentautomationServiceUrl: http://appmanager:8521/appmanager
+    authorizationServiceHost: http://appmanager:8521/appmanager/rest/authorization
+    mobiusResourcesUrl: http://mobiusview:80/mobius/rest/resources
+    directoryServiceHost: http://mobiusview:80/mobius/rest/iam
+    agent:
+      enabled: <AGENT_TASK_ENABLED>
+      llm:
+        openai:
+          api_key: <OPENAI_API_KEY>
+          generation_config:
+            model: "gpt-4o-mini"
+            temperature: 0.7
+      mcpserver:
+        name: <MCP_SERVER_NAME>
+        url: <MCP_SERVER_URL>
+        toolsPath: <MCP_SERVER_PATH>
+        timeout: 30000
+        auth: # Optional: Authentication details
+          type: "bearer"
+          token: "your-token"
+  security:
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+        groupNames:
+        groupSeparator:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: <MOBIUSVIEW_SECURITY_JWT_PRIVATEKEY>
+          publicKey: <MOBIUSVIEW_SECURITY_JWT_PUBLICKEY>
+          expireSeconds: 36000
+#server:
+#  port: 8522
+#  ssl:
+#    trustStore: <trust-store-path>
+#    trustStorePassword: <trust-store-password>

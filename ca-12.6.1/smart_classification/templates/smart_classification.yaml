@@ -1,0 +1,14 @@
+replicaCount: 1
+namespace: <NAMESPACE>
+
+image:
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_SMART_CLASSIFICATION>
+  pullPolicy: IfNotPresent
+  tag: <IMAGE_VERSION_SMART_CLASSIFICATION>
+database:
+  enabled: true
+  host: <POSTGRESQL_HOST>
+  port: <POSTGRESQL_PORT>
+  name: <POSTGRESQL_DBNAME_SMART_CLASSIFICATION>
+  poolSize: "5"
+  existingSecret: <CLASSIFICATION_SECRET>

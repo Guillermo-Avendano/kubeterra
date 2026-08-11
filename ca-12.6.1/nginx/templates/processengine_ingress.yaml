@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: contentautomation-processengine-ingress
+  namespace: contentautomation
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - admin'
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - localhost
+      secretName: nginx-cert
+  rules:
+    - host: <HOSTNAME>
+      http:
+        paths:
+          - path: /contentautomation/mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: contentautomation-processengine
+                port:
+                  number: 8522
+          - path: /contentautomation/process/
+            pathType: Prefix
+            backend:
+              service:
+                name: contentautomation-processengine
+                port:
+                  number: 8522

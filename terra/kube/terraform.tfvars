@@ -151,3 +151,54 @@ var_opensearch_port                 = "9200"
 var_opensearch_user                 = "admin"
 var_opensearch_password             = "Rocket@123#!_"
 var_smart_chat_openai_api_key       = "<To_be_updated>"
+
+### Content Automation components
+var_appmanager_docker_artifactory_url = "localhost:5000/appmanager"
+var_studio_docker_artifactory_url     = "localhost:5000/studio"
+var_processengine_docker_artifactory_url = "localhost:5000/processengine"
+
+var_appmanager_image   = "12.6.1"
+var_studio_image       = "12.6.1"
+var_processengine_image = "12.6.1"
+
+var_appmanager_chart_file   = "appmanager.tgz"
+var_studio_chart_file       = "studio.tgz"
+var_processengine_chart_file = "processengine.tgz"
+
+var_deploy_appmanager    = true
+var_deploy_studio        = true
+var_deploy_processengine = true
+var_deploy_nginx         = true
+
+var_database_appmanager_schema          = "tf_mobius_am"
+var_database_studio_schema              = "tf_mobius_st"
+var_database_processengine_flowable_schema = "tf_mobius_pe_flowable"
+var_database_processengine_root_schema     = "tf_mobius_pe_root"
+
+var_appmanager_replica   = 1
+var_studio_replica       = 1
+var_processengine_replica = 1
+
+var_appmanager_pvc_enabled    = true
+var_studio_pvc_enabled        = true
+var_processengine_pvc_enabled = true
+
+var_jwt_private_key             = "<To_be_updated>"
+var_jwt_public_key              = "<To_be_updated>"
+var_process_mail_host           = ""
+var_process_mail_from_email     = ""
+var_process_mail_username       = ""
+var_process_mail_password       = ""
+var_processengine_ldap_enabled  = false
+var_processengine_agent_task_enabled = false
+var_processengine_openai_api_key = ""
+var_mcp_server_name             = ""
+var_mcp_server_url              = ""
+var_mcp_server_path             = ""
+var_studio_template_display_name = "Default Template"
+var_studio_template_local_path   = "/home/asg/templates/default.proj"
+
+var_nginx_namespace     = "ingress-nginx"
+var_nginx_version       = "v1.4.0"
+var_nginx_chart_version = "4.12.3"
+var_ingress_hostname    = "localhost"

@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smart-classificationingress
+  namespace: <NAMESPACE>
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - admin'
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: <HOSTNAME>
+      http:
+        paths:
+          - backend:
+              service:
+                name: smart-classification
+                port:
+                  number: 80
+            path: /classification
+            pathType: Prefix
+  tls:
+    - hosts:
+        - <HOSTNAME>
+      secretName: nginx-cert

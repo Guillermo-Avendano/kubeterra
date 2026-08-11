@@ -1,0 +1,82 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#replicaCount is the number of replicas required for this service
+replicaCount: 1
+#namespace is the place for the service to run
+namespace: <NAMESPACE>
+image:
+  # Placeholders will replaced in runtime based on .env file
+  repository: k3d-<NAME_LOCALREGISTRY>:<PORT_LOCALREGISTRY>/<IMAGE_NAME_STUDIO>
+  tag: <IMAGE_VERSION_STUDIO>
+  pullPolicy: IfNotPresent
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://<POSTGRESQL_HOST>:<POSTGRESQL_PORT>/<POSTGRESQL_DBNAME_STUDIO>"
+    username: "<POSTGRESQL_USERNAME>"
+    password: "<POSTGRESQL_PASSWORD>"
+    driverClassName: org.postgresql.Driver
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            authorization:
+              uri: http://appmanager:8521/appmanager
+studio:
+  # projectTemplates: Project templates are external .proj files that can be used in Studio as templates while creating a new project.
+  # Template name: Template name is optional and is shown as the display name in the dropdown. If not provided, the actual file name will be shown.
+  # Template path: static path where all the .proj template files are stored.
+  # Template Local path: Absolute path of the .proj template file
+  # We can add multiple project templates as shown in the example below.
+
+  #Note: Don't modify Template Path, it should be static for all the entries.
+  #value: /home/asg/templates
+  projectTemplates:
+    - templateName: <OPTIONAL_DISPLAY_TEMPLATE_NAME>
+      templatePath: /home/asg/templates
+      templateLocalPath: <MANDATORY_TEMPLATE_PATH>
+  service:
+    processEngineUrl: "http://processengine:8522/process/rest"
+    mobiusResourcesUrl: "http://mobiusview:80/mobius/rest/resources"
+
+persistence:
+  enabled: false
+  claimName: studio-log-pv-claim
+
+additionalVolumeMounts:
+  - name: studio-data
+    mountPath: /home/asg/templates
+
+additionalVolumes:
+  - name: studio-data
+    persistentVolumeClaim:
+      claimName: studio-log-pv-claim
+
+asg:
+  security:
+    basicauth:
+      inbound: false
+    appServer:
+      enabled: true
+      type: CUSTOM
+      attributes:
+        userName: X-Remote-User
+        groupNames:
+        groupSeparator:
+    jwt:
+      enabled: true
+      serviceTokenSettings:
+        internalConfig:
+          urlPatterns: /rest/*
+          privateKey: <MOBIUSVIEW_SECURITY_JWT_PRIVATEKEY>
+          publicKey: <MOBIUSVIEW_SECURITY_JWT_PUBLICKEY>
+          expireSeconds: 36000
+  authorization:
+    enabled: true
+#server:
+#  port: 8082
+#  ssl:
+#    trustStore: <TRUST_STORE_PATH>
+#    trustStorePassword: <TRUST_STORE_PASSWORD>
